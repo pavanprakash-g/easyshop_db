@@ -67,7 +67,7 @@ COMMENT = '		';
 DROP TABLE IF EXISTS `easyshop`.`shipmentaddress`;
 
 CREATE TABLE IF NOT EXISTS `easyshop`.`shipmentaddress` (
-  `SHIPMENT_ID` INT NOT NULL,
+  `SHIPMENT_ID` INT NOT NULL AUTO_INCREMENT,
   `CUST_ID1` INT NOT NULL,
   `SHIPMENT_ADDRESS1` VARCHAR(45) NULL,
   `SHIPMENT_ADDRESS2` VARCHAR(45) NOT NULL,
@@ -91,7 +91,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `easyshop`.`billingaddress`;
 
 CREATE TABLE IF NOT EXISTS `easyshop`.`billingaddress` (
-  `BILLING_ID` INT NOT NULL,
+  `BILLING_ID` INT NOT NULL AUTO_INCREMENT,
   `CUST_ID2` INT NOT NULL,
   `BILLING_ADDRESS1` VARCHAR(45) NULL,
   `BILLING_ADDRESS2` VARCHAR(45) NULL,
@@ -116,7 +116,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `easyshop`.`card`;
 
 CREATE TABLE IF NOT EXISTS `easyshop`.`card` (
-  `CARD_ID` INT NOT NULL,
+  `CARD_ID` INT NOT NULL AUTO_INCREMENT,
   `CUST_ID3` INT NOT NULL,
   `CARD_NUMBER` INT NOT NULL,
   `CARD_CVV` INT NOT NULL,
@@ -136,3 +136,42 @@ SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
 
 ALTER TABLE `easyshop`.`customer` ADD ACTIVE_STATUS BIT;
+
+ALTER TABLE `easyshop`.`billingaddress` CHANGE BILLING_PHONE_NUMBER BILLING_PHONE_NUMBER VARCHAR(15) ;
+
+ALTER TABLE `easyshop`.`shipmentaddress` CHANGE CUST_ID1 CUST_ID int;
+
+ALTER TABLE `easyshop`.`billingaddress` CHANGE CUST_ID2 CUST_ID int;
+
+ALTER TABLE `easyshop`.`shipmentaddress` ADD SHIPMENT_ZIPCODE int;
+
+alter table `easyshop`.`shipmentaddress` drop primary key;
+
+alter table `easyshop`.`billingaddress` drop primary key;
+
+alter table `easyshop`.`shipmentaddress` change SHIPMENT_ID SHIPMENT_ID INT PRIMARY KEY AUTO_INCREMENT;
+
+alter table `easyshop`.`billingaddress` change BILLING_ID BILLING_ID INT PRIMARY KEY AUTO_INCREMENT;
+
+alter table `easyshop`.`customer` ADD AUTH_TOKEN varchar(45);
+
+ALTER TABLE `easyshop`.`card` CHANGE CUST_ID3 CUST_ID int;
+
+ALTER TABLE `easyshop`.`card` ADD CARD_EXP_MON int;
+
+ALTER TABLE `easyshop`.`card` ADD CARD_EXP_YR int;
+
+ALTER TABLE `easyshop`.`card` CHANGE CARD_NUMBER CARD_NUMBER varchar(25);
+
+create table address(
+ ADDRESS_ID INT PRIMARY KEY AUTO_INCREMENT,
+ CUST_ID INT,
+ ADDRESS1 VARCHAR(45),
+ ADDRESS2 VARCHAR(45),
+ CITY VARCHAR(45),
+ STATE VARCHAR(45),
+ ZIPCODE INT,
+ PHONE_NUMBER VARCHAR(45),
+ COUNTRY VARCHAR(30),
+ CONSTRAINT ADDRESS_1
+ FOREIGN KEY (CUST_ID) REFERENCES customer(CUST_ID));

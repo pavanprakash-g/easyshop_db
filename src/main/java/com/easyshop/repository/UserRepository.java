@@ -3,8 +3,6 @@ package com.easyshop.repository;
 import com.easyshop.model.UserModel;
 import org.springframework.data.repository.CrudRepository;
 
-import java.util.Iterator;
-
 /**
  * Created by admin on 22/10/16.
  */
@@ -15,5 +13,7 @@ public interface UserRepository extends CrudRepository<UserModel, Long> {
 	UserModel findByCustEmailid(String custEmailId);
 	
     Iterable<UserModel> findAll();
+
+    UserModel findByAuthToken(String authToken);
 
 }

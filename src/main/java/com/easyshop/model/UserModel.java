@@ -6,7 +6,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.sql.Date;
+import java.util.List;
 
 
 /**
@@ -54,9 +54,18 @@ public class UserModel {
 
     private String securityQuesAns;
 
+
+    private String authToken;
+
     @OneToOne
     @JoinColumn(name = "securityQuesId", nullable = false, insertable = false, updatable = false)
     private QuestionModel question;
+
+    @OneToMany(mappedBy = "custId")
+    private List<AddressModel> addresses;
+
+    @OneToMany(mappedBy = "custId")
+    private List<CardModel> cards;
 
     public UserModel(){}
 
