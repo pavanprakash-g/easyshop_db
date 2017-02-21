@@ -9,17 +9,19 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.sql.Date;
 
+
+/**
+ * Created by admin-hp on 19/2/17.
+ */
 @Entity
 @Table(name="item")
 @Getter
 @Setter
 @Data
-
-/**
- * Created by admin-hp on 19/2/17.
- */
 public class CatalogModel {
+
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long itemId;
 
     @NotNull
@@ -36,7 +38,4 @@ public class CatalogModel {
 
     public CatalogModel(){}
 
-    public String getItemName() {
-        return itemName;
-    }
 }

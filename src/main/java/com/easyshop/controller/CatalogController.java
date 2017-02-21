@@ -1,35 +1,30 @@
 package com.easyshop.controller;
 
 import com.easyshop.model.CatalogModel;
-import com.easyshop.model.ForgotPasswordModel;
-import com.easyshop.model.UserModel;
 import com.easyshop.repository.CatalogRepository;
 import com.easyshop.repository.CommonRepository;
-import com.easyshop.repository.UserRepository;
-import com.easyshop.util.EasyShopUtil;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Null;
 
 import java.util.List;
 
 import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
-import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 
 /**
  * Created by admin-hp on 19/2/17.
  */
+@CrossOrigin
+@RestController
+@RequestMapping("/catalog")
 public class CatalogController {
     private final static Logger logger = Logger.getLogger(LoginController.class);
 
@@ -109,6 +104,14 @@ public class CatalogController {
         }
     }
 
+    @RequestMapping(value = "/itemDetails", method = GET, produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity getItemDetails(@RequestParam(value = "itemId", required = false, defaultValue ="0" ) Long itemId) throws Exception{
+        if(itemId == 0) {
+            return ResponseEntity.ok(catalogRepository.findAll());
+        }else{
+            return ResponseEntity.ok(catalogRepository.findOne(itemId));
+        }
+    }
    /*@RequestMapping(value = "/createAllItem", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity <List <CatalogModel> >  createAllItem(@Valid @RequestBody List <CatalogModel> catalogModels) throws Exception{
         JSONObject responseObject = new JSONObject();

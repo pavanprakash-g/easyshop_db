@@ -13,7 +13,7 @@ public interface CatalogRepository extends CrudRepository<CatalogModel, Long> {
 
     //CatalogModel findByCustEmailidAndCustPasswordAndActiveStatus(String custEmailId, String custPassword, boolean activeStatus);
 	//CatalogModel findByCustEmailidAndSecurityQuesAns(String custEmailId, String securityQuesAns);
-	CatalogModel findByItemid(long itemid);
+	CatalogModel findByItemId(long itemid);
     CatalogModel findByItemName(String itemName);
     Iterable<CatalogModel> findAll();
 
