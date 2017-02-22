@@ -1,6 +1,8 @@
 package com.easyshop.controller;
 
+import com.easyshop.model.AddressModel;
 import com.easyshop.model.UserModel;
+import com.easyshop.repository.AddressRepository;
 import com.easyshop.repository.UserRepository;
 import com.easyshop.util.EasyShopUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,9 @@ public class ProfileController {
     @Autowired
     UserRepository userRepository;
 
+    @Autowired
+    AddressRepository addressRepository;
+
     @RequestMapping(value = "/custDetails", method = GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity getCustomerDetails(HttpServletRequest request, @RequestParam(value= "id", required = false, defaultValue ="0" ) Long id){
         /*if(!EasyShopUtil.isValidCustomer(userRepository, request)){
@@ -46,5 +51,14 @@ public class ProfileController {
         }*/
         userRepository.save(userModel);
         return ResponseEntity.ok(userRepository.findAll());
+    }
+
+    @RequestMapping(value = "/address", method = PUT, produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity updateCustomerStatus(HttpServletRequest request, @RequestBody AddressModel addressModel){
+        /*if(!EasyShopUtil.isValidCustomer(userRepository, request)){
+            return ResponseEntity.badRequest().body("Invalid Auth Token");
+        }*/
+        addressRepository.save(addressModel);
+        return ResponseEntity.ok("success");
     }
 }
