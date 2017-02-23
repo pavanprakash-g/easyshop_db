@@ -106,10 +106,18 @@ public class CatalogController {
 
     @RequestMapping(value = "/itemDetails", method = GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity getItemDetails(@RequestParam(value = "itemId", required = false, defaultValue ="0" ) Long itemId) throws Exception{
+        JSONObject responseObject = new JSONObject();
         if(itemId == 0) {
             return ResponseEntity.ok(catalogRepository.findAll());
-        }else{
+        }else if(itemId == -1){
+            responseObject.put("Item_1",catalogRepository.findOne((long) 1));
+            responseObject.put("Item_2",catalogRepository.findOne((long) 2));
+            responseObject.put("Item_3",catalogRepository.findOne((long) 3));
             return ResponseEntity.ok(catalogRepository.findOne(itemId));
+        }
+        else
+        {
+            return ResponseEntity.ok(responseObject.toString());
         }
     }
    /*@RequestMapping(value = "/createAllItem", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
