@@ -3,6 +3,8 @@ package com.easyshop.controller;
 import com.easyshop.model.CatalogModel;
 import com.easyshop.repository.CatalogRepository;
 import com.easyshop.repository.CommonRepository;
+import com.easyshop.repository.UserRepository;
+import com.easyshop.util.EasyShopUtil;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
@@ -11,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import java.util.List;
@@ -33,6 +36,9 @@ public class CatalogController {
 
     @Autowired
     private CatalogRepository catalogRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @RequestMapping(value = "/getItem", method = GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity getItem(@RequestParam("itemName") String itemName) throws Exception{
@@ -105,7 +111,10 @@ public class CatalogController {
     }
 
     @RequestMapping(value = "/itemDetails", method = GET, produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity getItemDetails(@RequestParam(value = "itemId", required = false, defaultValue ="0" ) Long itemId) throws Exception{
+    public ResponseEntity getItemDetails(HttpServletRequest request, @RequestParam(value = "itemId", required = false, defaultValue ="0" ) Long itemId) throws Exception{
+        if(!EasyShopUtil.isValidCustomer(userRepository, request)){
+            return ResponseEntity.badRequest().body("Invalid Auth Token");
+        }
         if(itemId == 0) {
             return ResponseEntity.ok(catalogRepository.findAll());
         }else{

@@ -34,9 +34,9 @@ public class ProfileController {
 
     @RequestMapping(value = "/custDetails", method = GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity getCustomerDetails(HttpServletRequest request, @RequestParam(value= "id", required = false, defaultValue ="0" ) Long id){
-        /*if(!EasyShopUtil.isValidCustomer(userRepository, request)){
+        if(!EasyShopUtil.isValidCustomer(userRepository, request)){
             return ResponseEntity.badRequest().body("Invalid Auth Token");
-        }*/
+        }
         if(id == 0) {
             return ResponseEntity.ok(userRepository.findAll());
         }else{
@@ -46,18 +46,18 @@ public class ProfileController {
 
     @RequestMapping(value = "/custDetails", method = PUT, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity updateCustomerStatus(HttpServletRequest request, @RequestBody UserModel userModel){
-        /*if(!EasyShopUtil.isValidCustomer(userRepository, request)){
+        if(!EasyShopUtil.isValidCustomer(userRepository, request)){
             return ResponseEntity.badRequest().body("Invalid Auth Token");
-        }*/
+        }
         userRepository.save(userModel);
         return ResponseEntity.ok(userRepository.findAll());
     }
 
     @RequestMapping(value = "/address", method = PUT, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity updateCustomerStatus(HttpServletRequest request, @RequestBody AddressModel addressModel){
-        /*if(!EasyShopUtil.isValidCustomer(userRepository, request)){
+        if(!EasyShopUtil.isValidCustomer(userRepository, request)){
             return ResponseEntity.badRequest().body("Invalid Auth Token");
-        }*/
+        }
         addressRepository.save(addressModel);
         return ResponseEntity.ok("success");
     }
