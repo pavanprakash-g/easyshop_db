@@ -115,10 +115,16 @@ public class CatalogController {
         if(!EasyShopUtil.isValidCustomer(userRepository, request)){
             return ResponseEntity.badRequest().body("Invalid Auth Token");
         }
+        JSONObject responseObject = new JSONObject();
         if(itemId == 0) {
             return ResponseEntity.ok(catalogRepository.findAll());
-        }else{
+        }else if(itemId == -1){
+            responseObject.put("Item_1",catalogRepository.findOne((long) 1));
+            responseObject.put("Item_2",catalogRepository.findOne((long) 2));
+            responseObject.put("Item_3",catalogRepository.findOne((long) 3));
             return ResponseEntity.ok(catalogRepository.findOne(itemId));
+        }else{
+            return ResponseEntity.ok(responseObject.toString());
         }
     }
    /*@RequestMapping(value = "/createAllItem", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
