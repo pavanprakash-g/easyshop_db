@@ -21,6 +21,7 @@ import java.util.List;
 import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
+import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 
 /**
  * Created by admin-hp on 19/2/17.
@@ -96,17 +97,17 @@ public class CatalogController {
                 JSONObject info = new JSONObject();
                 info.put("itemName", resp.getItemName());
                 //logger.log(Level.INFO, "Response" + catalogRepository.save(catalogModels));
-                return new ResponseEntity <CatalogModel>  (catalogModel, HttpStatus.OK);
+                return ResponseEntity.ok(catalogRepository.findAll());
             }else {
                 responseObject.put("status",false);
                 responseObject.put("message","Item Already Exists");
-                return new ResponseEntity(catalogModel, HttpStatus.BAD_REQUEST);
+                return ResponseEntity.badRequest().build();
             }
         }catch (Exception e){
             responseObject.put("status",false);
             responseObject.put("message",e.getMessage());
             logger.log(Level.ERROR, "Unexpected exception",e);
-            return new ResponseEntity (catalogModel, HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().build();
         }
     }
 
@@ -127,32 +128,17 @@ public class CatalogController {
             return ResponseEntity.ok(responseObject.toString());
         }
     }
-   /*@RequestMapping(value = "/createAllItem", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
-    public ResponseEntity <List <CatalogModel> >  createAllItem(@Valid @RequestBody List <CatalogModel> catalogModels) throws Exception{
-        JSONObject responseObject = new JSONObject();
-        try {
-            if(catalogRepository.findByItemName(CatalogModel.getItemName()) == null) {
-                CatalogModel resp= null;
-                for (CatalogModel items: catalogModels) {
-                    resp = catalogRepository.save(items);
-                }
-                JSONObject info = new JSONObject();
-                info.put("itemName", resp.getItemName());
-                //logger.log(Level.INFO, "Response" + catalogRepository.save(items));
-                return new ResponseEntity <List <CatalogModel> > (catalogModels, HttpStatus.OK);
-            }else {
-                responseObject.put("status",false);
-                responseObject.put("message","Item Already Exists");
-                return new ResponseEntity(catalogModels, HttpStatus.BAD_REQUEST);
-            }
-        }catch (Exception e){
-            responseObject.put("status",false);
-            responseObject.put("message",e.getMessage());
-            logger.log(Level.ERROR, "Unexpected exception",e);
-            return new ResponseEntity (catalogModels, HttpStatus.BAD_REQUEST);
+
+    @RequestMapping(value = "/updateItem", method = PUT, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
+    public ResponseEntity updateItem(HttpServletRequest request, @Valid @RequestBody CatalogModel catalogModel) throws Exception{
+        if(!EasyShopUtil.isValidCustomer(userRepository, request)){
+            return ResponseEntity.badRequest().body("Invalid Auth Token");
         }
-        //return ResponseEntity.ok(responseObject.toString());
-    }*/
+        JSONObject responseObject = new JSONObject();
+        responseObject.put("status",true);
+        catalogRepository.save(catalogModel);
+        return ResponseEntity.ok(responseObject.toString());
+    }
 
     private CatalogController() {
     }
