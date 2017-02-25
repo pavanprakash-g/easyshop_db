@@ -65,6 +65,7 @@ public class LoginController{
         JSONObject responseObject = new JSONObject();
         try {
             if(userRepository.findByCustEmailid(userModel.getCustEmailid()) == null) {
+                String authtoken = EasyShopUtil.getRandonUDID();
                 UserModel resp = userRepository.save(userModel);
                 responseObject.put("status", true);
                 JSONObject info = new JSONObject();
@@ -72,9 +73,10 @@ public class LoginController{
                 info.put("lastName", resp.getCustLastName());
                 info.put("emailId", resp.getCustEmailid());
                 responseObject.put("status", "success");
-                responseObject.put("uuid", EasyShopUtil.getRandonUDID());
+                responseObject.put("uuid", authtoken);
                 responseObject.put("info", info);
-                logger.log(Level.INFO, "Response" + userRepository.save(userModel));
+                userModel.setAuthToken(authtoken);
+                userRepository.save(userModel);
                 return ResponseEntity.ok(responseObject.toString());
             }else {
                 responseObject.put("status",false);
