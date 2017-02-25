@@ -19,9 +19,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
-import static org.springframework.web.bind.annotation.RequestMethod.PUT;
+import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 /**
  * Created by admin-hp on 19/2/17.
@@ -58,6 +56,26 @@ public class CatalogController {
         }
     }
 
+    @RequestMapping(value = "/deleteItem", method = DELETE, produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity deleteItem(HttpServletRequest request, @RequestParam("itemId") long itemId) throws Exception{
+        if(!EasyShopUtil.isValidCustomer(userRepository, request)){
+            return ResponseEntity.badRequest().body("Invalid Auth Token");
+        }
+        JSONObject response = new JSONObject();
+        JSONObject deleteItem = new JSONObject();
+        CatalogModel catalogModel = catalogRepository.findByItemId(itemId);
+        if(catalogModel!=null) {
+            response.put("status", true);
+            response.put("itemId",catalogModel.getItemId());
+            deleteItem.put("getItem",response);
+            catalogRepository.delete(itemId);
+            return ResponseEntity.ok(deleteItem.toString());
+        }else {
+            response.put("status", false);
+            response.put("message","Item not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response.toString());
+        }
+    }
 
     @RequestMapping(value = "/getAllItem", method = GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity getAllItem() throws Exception{
