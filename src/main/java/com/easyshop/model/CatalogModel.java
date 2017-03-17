@@ -36,6 +36,9 @@ public class CatalogModel {
     @NotNull
     private long itemQuantity;
 
+    @NotNull
+    private String itemImage;
+
     public CatalogModel(){}
 
 }
