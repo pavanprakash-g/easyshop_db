@@ -49,6 +49,7 @@ public class LoginController{
             response.put("uuid",uuid);
             response.put("custId",userModel.getCustId());
             response.put("firstName",userModel.getCustFirstName());
+            response.put("cartCount", commonRepository.getCartCount(userModel.getCustId()).size());
             verifyLogin.put("verifyLogin",response);
             userModel.setAuthToken(uuid);
             userRepository.save(userModel);
