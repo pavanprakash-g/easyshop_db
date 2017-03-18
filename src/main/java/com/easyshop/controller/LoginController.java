@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
@@ -37,7 +38,7 @@ public class LoginController{
     private UserRepository userRepository;
 
     @RequestMapping(value = "/verifyLogin", method = GET, produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity verifyLogin(@RequestParam("email") String email, @RequestParam("pwd") String pwd) throws Exception{
+    public ResponseEntity verifyLogin(HttpServletRequest request, @RequestParam("email") String email, @RequestParam("pwd") String pwd) throws Exception{
         String uuid;
         JSONObject response = new JSONObject();
         JSONObject verifyLogin = new JSONObject();
@@ -46,8 +47,12 @@ public class LoginController{
             uuid = EasyShopUtil.getRandonUDID();
             response.put("status", true);
             response.put("uuid",uuid);
+            response.put("custId",userModel.getCustId());
             response.put("firstName",userModel.getCustFirstName());
+            response.put("cartCount", commonRepository.getCartCount(userModel.getCustId()).size());
             verifyLogin.put("verifyLogin",response);
+            userModel.setAuthToken(uuid);
+            userRepository.save(userModel);
             return ResponseEntity.ok(verifyLogin.toString());
         }else {
             response.put("status", false);
@@ -57,10 +62,11 @@ public class LoginController{
     }
 
     @RequestMapping(value = "/createUser", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
-    public ResponseEntity createUser(@Valid @RequestBody UserModel userModel) throws Exception{
+    public ResponseEntity createUser(HttpServletRequest request, @Valid @RequestBody UserModel userModel) throws Exception{
         JSONObject responseObject = new JSONObject();
         try {
             if(userRepository.findByCustEmailid(userModel.getCustEmailid()) == null) {
+                String authtoken = EasyShopUtil.getRandonUDID();
                 UserModel resp = userRepository.save(userModel);
                 responseObject.put("status", true);
                 JSONObject info = new JSONObject();
@@ -68,9 +74,10 @@ public class LoginController{
                 info.put("lastName", resp.getCustLastName());
                 info.put("emailId", resp.getCustEmailid());
                 responseObject.put("status", "success");
-                responseObject.put("uuid", EasyShopUtil.getRandonUDID());
+                responseObject.put("uuid", authtoken);
                 responseObject.put("info", info);
-                logger.log(Level.INFO, "Response" + userRepository.save(userModel));
+                userModel.setAuthToken(authtoken);
+                userRepository.save(userModel);
                 return ResponseEntity.ok(responseObject.toString());
             }else {
                 responseObject.put("status",false);
