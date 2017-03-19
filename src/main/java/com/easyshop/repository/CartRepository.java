@@ -10,4 +10,7 @@ public interface CartRepository extends CrudRepository<CartModel, Long> {
 
     Iterable<CartModel> findByCustId(long custId);
 
+    Iterable<CartModel> findByItemId(int itemId);
+
+    CartModel findTopByCustId(long custId);
 }

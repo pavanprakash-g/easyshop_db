@@ -3,6 +3,7 @@ package com.easyshop.controller;
 import com.easyshop.model.AddressModel;
 import com.easyshop.model.UserModel;
 import com.easyshop.repository.AddressRepository;
+import com.easyshop.repository.CardRepository;
 import com.easyshop.repository.UserRepository;
 import com.easyshop.util.EasyShopUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,9 @@ public class ProfileController {
     @Autowired
     AddressRepository addressRepository;
 
+    @Autowired
+    CardRepository cardRepository;
+
     @RequestMapping(value = "/custDetails", method = GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity getCustomerDetails(HttpServletRequest request, @RequestParam(value= "id", required = false, defaultValue ="0" ) Long id){
         if(!EasyShopUtil.isValidCustomer(userRepository, request)){
@@ -54,11 +58,27 @@ public class ProfileController {
     }
 
     @RequestMapping(value = "/address", method = PUT, produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity updateCustomerStatus(HttpServletRequest request, @RequestBody AddressModel addressModel){
+    public ResponseEntity udpateAddress(HttpServletRequest request, @RequestBody AddressModel addressModel){
         if(!EasyShopUtil.isValidCustomer(userRepository, request)){
             return ResponseEntity.badRequest().body("Invalid Auth Token");
         }
         addressRepository.save(addressModel);
         return ResponseEntity.ok("success");
+    }
+
+    @RequestMapping(value = "/address", method = GET, produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity getAddresses(HttpServletRequest request){
+        if(!EasyShopUtil.isValidCustomer(userRepository, request)){
+            return ResponseEntity.badRequest().body("Invalid Auth Token");
+        }
+        return ResponseEntity.ok(addressRepository.findAll());
+    }
+
+    @RequestMapping(value = "/cards", method = PUT, produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity getCards(HttpServletRequest request){
+        if(!EasyShopUtil.isValidCustomer(userRepository, request)){
+            return ResponseEntity.badRequest().body("Invalid Auth Token");
+        }
+        return ResponseEntity.ok(cardRepository.findAll());
     }
 }
