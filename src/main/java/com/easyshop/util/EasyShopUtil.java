@@ -2,6 +2,7 @@ package com.easyshop.util;
 
 import com.easyshop.model.UserModel;
 import com.easyshop.repository.CatalogRepository;
+import com.easyshop.repository.CommonRepository;
 import com.easyshop.repository.UserRepository;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -53,5 +54,14 @@ public class EasyShopUtil {
             }
         }
         return 0;
+    }
+
+    public static Long getMaxId(String table, String column, CommonRepository commonRepository) {
+        Map<String, Object> map = commonRepository.getMaxId(table,column);
+        if(map.get("newId") != null){
+            return (Long)map.get("newId");
+        }else{
+            return 1L;
+        }
     }
 }
