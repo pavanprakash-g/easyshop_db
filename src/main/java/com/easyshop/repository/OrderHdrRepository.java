@@ -10,4 +10,6 @@ public interface OrderHdrRepository extends CrudRepository<OrderHdrModel, Long> 
 
     Iterable<OrderHdrModel> findByCustId(int custId);
 
+    OrderHdrModel findByOrderId(long orderId);
+
 }

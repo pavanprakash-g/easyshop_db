@@ -50,4 +50,8 @@ public class CommonRepository{
         return template.queryForMap("select max("+column+")+1 newId from "+table);
     }
 
+    public List<Map<String, Object>> getOrderDetails(long id){
+        return template.queryForList("select ");
+    }
+
 }

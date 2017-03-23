@@ -10,4 +10,6 @@ public interface OrderDtlRepository extends CrudRepository<OrderDtlModel, Long> 
 
     Iterable<OrderDtlModel> findByOrderId(long orderId);
 
+    OrderDtlModel findByOrderIdAndOrderItemId(long orderId, int itemId);
+
 }

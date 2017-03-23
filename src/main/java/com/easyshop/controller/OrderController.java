@@ -19,6 +19,7 @@ import java.util.List;
 import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
+import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 
 /**
  * Created by pavan on 3/19/17.
@@ -49,11 +50,11 @@ public class OrderController {
     private CartRepository cartRepository;
 
     @RequestMapping(value = "/getOrders", method = GET, produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity getOrders(HttpServletRequest request, @RequestParam(name = "id", required = false, defaultValue ="0") int id) throws Exception{
+    public ResponseEntity getOrders(HttpServletRequest request, @RequestParam(name = "custId", required = false, defaultValue ="0") int id) throws Exception{
         if(!EasyShopUtil.isValidCustomer(userRepository, request)){
             return ResponseEntity.badRequest().body("Invalid Auth Token");
         }
-        return ResponseEntity.ok(OrderUtil.getData(id, orderHdrRepository, orderDtlRepository));
+        return ResponseEntity.ok(OrderUtil.getData(id, orderHdrRepository, orderDtlRepository, catalogRepository));
     }
 
     @RequestMapping(value = "/createOrders", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
@@ -71,5 +72,30 @@ public class OrderController {
         JSONObject response = new JSONObject();
         response.put("status", true);
         return ResponseEntity.ok(response.toString());
+    }
+
+    @RequestMapping(value = "/updateOrder", method = PUT, produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity updateOrder(HttpServletRequest request, @RequestParam(name = "orderId") long orderId, @RequestParam(name = "orderStatus") String orderStatus) throws Exception{
+        if(!EasyShopUtil.isValidCustomer(userRepository, request)){
+            return ResponseEntity.badRequest().body("Invalid Auth Token");
+        }
+        OrderHdrModel orderHdrModel = orderHdrRepository.findByOrderId(orderId);
+        orderHdrModel.setOrderStatus(orderStatus);
+        orderHdrRepository.save(orderHdrModel);
+        JSONObject resp = new JSONObject();
+        resp.put("status", true);
+        return ResponseEntity.ok(resp.toString());
+    }
+
+    @RequestMapping(value = "/updateOrderItem", method = PUT, produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity updateOrderItem(HttpServletRequest request, @RequestParam(name = "orderId") long orderId, @RequestParam(name = "orderItemId") int orderItemId, @RequestParam(name = "orderItemStatus") String orderItemStatus) throws Exception{
+        if(!EasyShopUtil.isValidCustomer(userRepository, request)){
+            return ResponseEntity.badRequest().body("Invalid Auth Token");
+        }
+        OrderDtlModel orderDtlModel = orderDtlRepository.findByOrderIdAndOrderItemId(orderId, orderItemId);
+        OrderUtil.updateStatus(orderHdrRepository, orderDtlRepository, orderDtlModel, orderItemStatus);
+        JSONObject resp = new JSONObject();
+        resp.put("status", true);
+        return ResponseEntity.ok(resp.toString());
     }
 }

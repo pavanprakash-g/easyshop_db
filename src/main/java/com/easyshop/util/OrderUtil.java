@@ -5,12 +5,14 @@ import com.easyshop.model.OrderDtlModel;
 import com.easyshop.model.OrderHdrModel;
 import com.easyshop.model.OrderModel;
 import com.easyshop.repository.CatalogRepository;
+import com.easyshop.repository.CommonRepository;
 import com.easyshop.repository.OrderDtlRepository;
 import com.easyshop.repository.OrderHdrRepository;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -50,7 +52,7 @@ public class OrderUtil {
         }
     }
 
-    public static List<OrderModel> getData(int id, OrderHdrRepository orderHdrRepository, OrderDtlRepository orderDtlRepository){
+    public static List<OrderModel> getData(int id, OrderHdrRepository orderHdrRepository, OrderDtlRepository orderDtlRepository, CatalogRepository catalogRepository){
         List<OrderModel> orderModelList = new ArrayList<>();
         long orderId;
         if(id == 0){
@@ -61,19 +63,11 @@ public class OrderUtil {
                 Iterable<OrderDtlModel> orderDtlModels = orderDtlRepository.findByOrderId(orderId);
                 List<OrderDtlModel> orderDtlModelList = new ArrayList<>();
                 for(OrderDtlModel orderDtlModel : orderDtlModels){
+                    orderDtlModel.setOrderItemName(catalogRepository.findByItemId(orderDtlModel.getOrderItemId()).getItemName());
                     orderDtlModelList.add(orderDtlModel);
                 }
                 orderModel.setItems(orderDtlModelList);
-                orderModel.setOrderId(orderId);
-                orderModel.setCustId(orderHdrModel.getCustId());
-                orderModel.setOrderItemCount(orderHdrModel.getOrderItemCount());
-                orderModel.setOrderTotal(orderHdrModel.getOrderTotal());
-                orderModel.setOrderStatus(orderHdrModel.getOrderStatus());
-                orderModel.setOrderItemCount(orderHdrModel.getOrderItemCount());
-                orderModel.setOrderTotal(orderHdrModel.getOrderTotal());
-                orderModel.setOrderAddressId(orderHdrModel.getOrderAddressId());
-                orderModel.setOrderUpdatedDate(orderHdrModel.getOrderUpdatedDate());
-                orderModel.setOrderUpdatedDate(orderHdrModel.getOrderUpdatedDate());
+                saveData(orderModel, orderHdrModel);
                 orderModelList.add(orderModel);
             }
         }else{
@@ -84,23 +78,38 @@ public class OrderUtil {
                 Iterable<OrderDtlModel> orderDtlModels = orderDtlRepository.findByOrderId(orderId);
                 List<OrderDtlModel> orderDtlModelList = new ArrayList<>();
                 for(OrderDtlModel orderDtlModel : orderDtlModels){
+                    orderDtlModel.setOrderItemName(catalogRepository.findByItemId(orderDtlModel.getOrderItemId()).getItemName());
                     orderDtlModelList.add(orderDtlModel);
                 }
                 orderModel.setItems(orderDtlModelList);
-                orderModel.setOrderId(orderId);
-                orderModel.setCustId(orderHdrModel.getCustId());
-                orderModel.setOrderItemCount(orderHdrModel.getOrderItemCount());
-                orderModel.setOrderTotal(orderHdrModel.getOrderTotal());
-                orderModel.setOrderStatus(orderHdrModel.getOrderStatus());
-                orderModel.setOrderItemCount(orderHdrModel.getOrderItemCount());
-                orderModel.setOrderTotal(orderHdrModel.getOrderTotal());
-                orderModel.setOrderAddressId(orderHdrModel.getOrderAddressId());
-                orderModel.setOrderCreatedDate(orderHdrModel.getOrderCreatedDate());
-                orderModel.setOrderUpdatedDate(orderHdrModel.getOrderUpdatedDate());
+                saveData(orderModel, orderHdrModel);
                 orderModelList.add(orderModel);
             }
         }
         return orderModelList;
+    }
+
+    private static void saveData(OrderModel orderModel, OrderHdrModel orderHdrModel){
+        orderModel.setOrderId(orderHdrModel.getOrderId());
+        orderModel.setCustId(orderHdrModel.getCustId());
+        orderModel.setOrderItemCount(orderHdrModel.getOrderItemCount());
+        orderModel.setOrderTotal(orderHdrModel.getOrderTotal());
+        orderModel.setOrderStatus(orderHdrModel.getOrderStatus());
+        orderModel.setOrderItemCount(orderHdrModel.getOrderItemCount());
+        orderModel.setOrderTotal(orderHdrModel.getOrderTotal());
+        orderModel.setOrderAddressId(orderHdrModel.getOrderAddressId());
+        orderModel.setOrderUpdatedDate(orderHdrModel.getOrderUpdatedDate());
+        orderModel.setOrderUpdatedDate(orderHdrModel.getOrderUpdatedDate());
+    }
+
+    public static void updateStatus(OrderHdrRepository orderHdrRepository, OrderDtlRepository orderDtlRepository, OrderDtlModel orderDtlModel, String orderItemStatus){
+        if("Return Approved".equals(orderItemStatus)) {
+            OrderHdrModel orderHdrModel = orderHdrRepository.findByOrderId(orderDtlModel.getOrderId());
+            orderHdrModel.setOrderTotal(orderHdrModel.getOrderTotal() - (orderDtlModel.getOrderItemPrice() * orderDtlModel.getOrderItemQuantity()));
+            orderHdrRepository.save(orderHdrModel);
+        }
+        orderDtlModel.setOrderItemStatus(orderItemStatus);
+        orderDtlRepository.save(orderDtlModel);
     }
 
 }

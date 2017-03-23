@@ -37,5 +37,8 @@ public class OrderDtlModel {
     @NotNull
     private String orderItemStatus;
 
+    @Transient
+    private String orderItemName;
+
     public OrderDtlModel(){}
 }
