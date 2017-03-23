@@ -8,4 +8,6 @@ import org.springframework.data.repository.CrudRepository;
  */
 public interface OrderDtlRepository extends CrudRepository<OrderDtlModel, Long> {
 
+    Iterable<OrderDtlModel> findByOrderId(long orderId);
+
 }

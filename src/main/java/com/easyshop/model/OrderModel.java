@@ -3,6 +3,7 @@ package com.easyshop.model;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
@@ -41,8 +42,8 @@ public class OrderModel {
     @NotNull
     private String orderUpdatedDate;
 
-    @OneToOne
+    @OneToMany
     private List<OrderDtlModel> items;
 
-    OrderModel(){}
+    public OrderModel(){}
 }

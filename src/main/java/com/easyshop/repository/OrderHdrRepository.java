@@ -8,4 +8,6 @@ import org.springframework.data.repository.CrudRepository;
  */
 public interface OrderHdrRepository extends CrudRepository<OrderHdrModel, Long> {
 
+    Iterable<OrderHdrModel> findByCustId(int custId);
+
 }

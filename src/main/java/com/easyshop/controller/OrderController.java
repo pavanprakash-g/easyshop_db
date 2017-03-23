@@ -10,10 +10,7 @@ import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -48,13 +45,15 @@ public class OrderController {
     @Autowired
     private CatalogRepository catalogRepository;
 
+    @Autowired
+    private CartRepository cartRepository;
+
     @RequestMapping(value = "/getOrders", method = GET, produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity getOrders(HttpServletRequest request) throws Exception{
+    public ResponseEntity getOrders(HttpServletRequest request, @RequestParam(name = "id", required = false, defaultValue ="0") int id) throws Exception{
         if(!EasyShopUtil.isValidCustomer(userRepository, request)){
             return ResponseEntity.badRequest().body("Invalid Auth Token");
         }
-
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(OrderUtil.getData(id, orderHdrRepository, orderDtlRepository));
     }
 
     @RequestMapping(value = "/createOrders", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
@@ -68,6 +67,7 @@ public class OrderController {
         orderHdrRepository.save(orderHdrModel);
         OrderUtil.updateDtlModel(orderModel, catalogRepository);
         orderDtlRepository.save(orderModel.getItems());
+        cartRepository.delete(cartRepository.findByCustId(orderModel.getCustId()));
         JSONObject response = new JSONObject();
         response.put("status", true);
         return ResponseEntity.ok(response.toString());

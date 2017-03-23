@@ -6,6 +6,7 @@ import com.easyshop.repository.AddressRepository;
 import com.easyshop.repository.CardRepository;
 import com.easyshop.repository.UserRepository;
 import com.easyshop.util.EasyShopUtil;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -58,20 +59,22 @@ public class ProfileController {
     }
 
     @RequestMapping(value = "/address", method = PUT, produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity udpateAddress(HttpServletRequest request, @RequestBody AddressModel addressModel){
+    public ResponseEntity udpateAddress(HttpServletRequest request, @RequestBody AddressModel addressModel) throws Exception{
         if(!EasyShopUtil.isValidCustomer(userRepository, request)){
             return ResponseEntity.badRequest().body("Invalid Auth Token");
         }
         addressRepository.save(addressModel);
-        return ResponseEntity.ok("success");
+        JSONObject response = new JSONObject();
+        response.put("status",true);
+        return ResponseEntity.ok(response.toString());
     }
 
     @RequestMapping(value = "/address", method = GET, produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity getAddresses(HttpServletRequest request){
+    public ResponseEntity getAddresses(HttpServletRequest request, @RequestParam(name = "addressId", required = false, defaultValue = "0") long addressId){
         if(!EasyShopUtil.isValidCustomer(userRepository, request)){
             return ResponseEntity.badRequest().body("Invalid Auth Token");
         }
-        return ResponseEntity.ok(addressRepository.findAll());
+        return ResponseEntity.ok(addressRepository.findByAddressId(addressId));
     }
 
     @RequestMapping(value = "/cards", method = PUT, produces = APPLICATION_JSON_VALUE)

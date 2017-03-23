@@ -5,7 +5,12 @@ import com.easyshop.model.OrderDtlModel;
 import com.easyshop.model.OrderHdrModel;
 import com.easyshop.model.OrderModel;
 import com.easyshop.repository.CatalogRepository;
+import com.easyshop.repository.OrderDtlRepository;
+import com.easyshop.repository.OrderHdrRepository;
 import org.apache.log4j.Logger;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -21,7 +26,6 @@ public class OrderUtil {
         orderHdrModel.setOrderCreatedDate(orderModel.getOrderCreatedDate());
         orderHdrModel.setOrderId(orderModel.getOrderId());
         orderHdrModel.setOrderStatus(orderModel.getOrderStatus());
-        orderHdrModel.setOrderItemCount(orderModel.getOrderItemCount());
         orderHdrModel.setOrderItemCount(orderModel.getOrderItemCount());
         orderHdrModel.setOrderTotal(orderModel.getOrderTotal());
         orderHdrModel.setOrderAddressId(orderModel.getOrderAddressId());
@@ -44,6 +48,59 @@ public class OrderUtil {
                 throw new Exception("Item Not available");
             }
         }
+    }
+
+    public static List<OrderModel> getData(int id, OrderHdrRepository orderHdrRepository, OrderDtlRepository orderDtlRepository){
+        List<OrderModel> orderModelList = new ArrayList<>();
+        long orderId;
+        if(id == 0){
+            Iterable<OrderHdrModel> orderHdrModels = orderHdrRepository.findAll();
+            for(OrderHdrModel orderHdrModel : orderHdrModels){
+                OrderModel orderModel = new OrderModel();
+                orderId = orderHdrModel.getOrderId();
+                Iterable<OrderDtlModel> orderDtlModels = orderDtlRepository.findByOrderId(orderId);
+                List<OrderDtlModel> orderDtlModelList = new ArrayList<>();
+                for(OrderDtlModel orderDtlModel : orderDtlModels){
+                    orderDtlModelList.add(orderDtlModel);
+                }
+                orderModel.setItems(orderDtlModelList);
+                orderModel.setOrderId(orderId);
+                orderModel.setCustId(orderHdrModel.getCustId());
+                orderModel.setOrderItemCount(orderHdrModel.getOrderItemCount());
+                orderModel.setOrderTotal(orderHdrModel.getOrderTotal());
+                orderModel.setOrderStatus(orderHdrModel.getOrderStatus());
+                orderModel.setOrderItemCount(orderHdrModel.getOrderItemCount());
+                orderModel.setOrderTotal(orderHdrModel.getOrderTotal());
+                orderModel.setOrderAddressId(orderHdrModel.getOrderAddressId());
+                orderModel.setOrderUpdatedDate(orderHdrModel.getOrderUpdatedDate());
+                orderModel.setOrderUpdatedDate(orderHdrModel.getOrderUpdatedDate());
+                orderModelList.add(orderModel);
+            }
+        }else{
+            Iterable<OrderHdrModel> orderHdrModels = orderHdrRepository.findByCustId(id);
+            for(OrderHdrModel orderHdrModel : orderHdrModels){
+                OrderModel orderModel = new OrderModel();
+                orderId = orderHdrModel.getOrderId();
+                Iterable<OrderDtlModel> orderDtlModels = orderDtlRepository.findByOrderId(orderId);
+                List<OrderDtlModel> orderDtlModelList = new ArrayList<>();
+                for(OrderDtlModel orderDtlModel : orderDtlModels){
+                    orderDtlModelList.add(orderDtlModel);
+                }
+                orderModel.setItems(orderDtlModelList);
+                orderModel.setOrderId(orderId);
+                orderModel.setCustId(orderHdrModel.getCustId());
+                orderModel.setOrderItemCount(orderHdrModel.getOrderItemCount());
+                orderModel.setOrderTotal(orderHdrModel.getOrderTotal());
+                orderModel.setOrderStatus(orderHdrModel.getOrderStatus());
+                orderModel.setOrderItemCount(orderHdrModel.getOrderItemCount());
+                orderModel.setOrderTotal(orderHdrModel.getOrderTotal());
+                orderModel.setOrderAddressId(orderHdrModel.getOrderAddressId());
+                orderModel.setOrderCreatedDate(orderHdrModel.getOrderCreatedDate());
+                orderModel.setOrderUpdatedDate(orderHdrModel.getOrderUpdatedDate());
+                orderModelList.add(orderModel);
+            }
+        }
+        return orderModelList;
     }
 
 }
