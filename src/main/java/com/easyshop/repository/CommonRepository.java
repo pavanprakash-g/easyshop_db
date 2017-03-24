@@ -46,4 +46,12 @@ public class CommonRepository{
         return template.queryForList("SELECT i.ITEM_ID itemId, i.ITEM_NAME itemName, i.ITEM_PRICE itemPrice, SUM(ITEM_PRICE) totalPrice, count(*) itemCount from item i inner join cart c on i.ITEM_ID=c.ITEM_ID where cust_id="+custId+" group by i.ITEM_ID");
     }
 
+    public Map<String, Object> getMaxId(String table, String column){
+        return template.queryForMap("select max("+column+")+1 newId from "+table);
+    }
+
+    public List<Map<String, Object>> getOrderDetails(long id){
+        return template.queryForList("select ");
+    }
+
 }

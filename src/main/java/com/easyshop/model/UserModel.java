@@ -54,6 +54,7 @@ public class UserModel {
 
     private String securityQuesAns;
 
+    private String country;
 
     private String authToken;
 

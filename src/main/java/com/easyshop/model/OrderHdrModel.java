@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 /**
  * Created by pavan on 2/17/17.
@@ -13,37 +14,37 @@ import javax.validation.constraints.NotNull;
 @Getter
 @Setter
 @Entity
-@Table(name = "address")
+@Table(name = "order_hdr")
 @Data
-public class AddressModel {
+public class OrderHdrModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long addressId;
+    private Long orderHdrId;
 
     @NotNull
-    private long custId;
+    private Long orderId;
 
     @NotNull
-    private String address1;
+    private int custId;
 
     @NotNull
-    private String address2;
+    private int orderItemCount;
 
     @NotNull
-    private String state;
+    private long orderTotal;
 
     @NotNull
-    private String city;
+    private String orderStatus;
 
     @NotNull
-    private String country;
+    private int orderAddressId;
 
     @NotNull
-    private int zipcode;
+    private String orderCreatedDate;
 
     @NotNull
-    private String phoneNumber;
+    private String orderUpdatedDate;
 
-    public AddressModel(){}
+    public OrderHdrModel(){}
 }
