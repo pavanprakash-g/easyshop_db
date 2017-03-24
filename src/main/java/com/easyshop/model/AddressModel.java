@@ -22,7 +22,7 @@ public class AddressModel {
     private Long addressId;
 
     @NotNull
-    private int custId;
+    private long custId;
 
     @NotNull
     private String address1;
@@ -45,5 +45,5 @@ public class AddressModel {
     @NotNull
     private String phoneNumber;
 
-    AddressModel(){}
+    public AddressModel(){}
 }

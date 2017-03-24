@@ -1,7 +1,9 @@
 package com.easyshop.controller;
 
+import com.easyshop.model.AddressModel;
 import com.easyshop.model.ForgotPasswordModel;
 import com.easyshop.model.UserModel;
+import com.easyshop.repository.AddressRepository;
 import com.easyshop.repository.CommonRepository;
 import com.easyshop.repository.UserRepository;
 import com.easyshop.util.EasyShopUtil;
@@ -37,6 +39,9 @@ public class LoginController{
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private AddressRepository addressRepository;
+
     @RequestMapping(value = "/verifyLogin", method = GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity verifyLogin(HttpServletRequest request, @RequestParam("email") String email, @RequestParam("pwd") String pwd) throws Exception{
         String uuid;
@@ -70,13 +75,22 @@ public class LoginController{
                 UserModel resp = userRepository.save(userModel);
                 responseObject.put("status", true);
                 JSONObject info = new JSONObject();
-                info.put("firstName", resp.getCustFirstName());
-                info.put("lastName", resp.getCustLastName());
-                info.put("emailId", resp.getCustEmailid());
+                info.put("custId",userModel.getCustId());
+                info.put("firstName",userModel.getCustFirstName());
                 responseObject.put("status", "success");
                 responseObject.put("uuid", authtoken);
                 responseObject.put("info", info);
                 userModel.setAuthToken(authtoken);
+                AddressModel addressModel = new AddressModel();
+                addressModel.setCustId(userModel.getCustId());
+                addressModel.setAddress1(userModel.getAddress1());
+                addressModel.setAddress2(userModel.getAddress2());
+                addressModel.setPhoneNumber(userModel.getCustPhoneNumber());
+                addressModel.setCity(userModel.getCity());
+                addressModel.setState(userModel.getState());
+                addressModel.setCountry(userModel.getCountry());
+                addressModel.setZipcode(userModel.getZipcode());
+                addressRepository.save(addressModel);
                 userRepository.save(userModel);
                 return ResponseEntity.ok(responseObject.toString());
             }else {

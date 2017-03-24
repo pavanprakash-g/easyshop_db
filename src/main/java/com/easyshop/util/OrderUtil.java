@@ -56,7 +56,7 @@ public class OrderUtil {
         List<OrderModel> orderModelList = new ArrayList<>();
         long orderId;
         if(id == 0){
-            Iterable<OrderHdrModel> orderHdrModels = orderHdrRepository.findAll();
+            Iterable<OrderHdrModel> orderHdrModels = orderHdrRepository.findAllByOrderByOrderHdrIdDesc();
             for(OrderHdrModel orderHdrModel : orderHdrModels){
                 OrderModel orderModel = new OrderModel();
                 orderId = orderHdrModel.getOrderId();
@@ -71,7 +71,7 @@ public class OrderUtil {
                 orderModelList.add(orderModel);
             }
         }else{
-            Iterable<OrderHdrModel> orderHdrModels = orderHdrRepository.findByCustId(id);
+            Iterable<OrderHdrModel> orderHdrModels = orderHdrRepository.findByCustIdOrderByOrderHdrIdDesc(id);
             for(OrderHdrModel orderHdrModel : orderHdrModels){
                 OrderModel orderModel = new OrderModel();
                 orderId = orderHdrModel.getOrderId();

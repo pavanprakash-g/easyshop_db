@@ -8,8 +8,10 @@ import org.springframework.data.repository.CrudRepository;
  */
 public interface OrderHdrRepository extends CrudRepository<OrderHdrModel, Long> {
 
-    Iterable<OrderHdrModel> findByCustId(int custId);
+    Iterable<OrderHdrModel> findByCustIdOrderByOrderHdrIdDesc(int custId);
 
     OrderHdrModel findByOrderId(long orderId);
+
+    Iterable<OrderHdrModel> findAllByOrderByOrderHdrIdDesc();
 
 }
