@@ -1,8 +1,10 @@
 package com.easyshop.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -35,16 +37,25 @@ public class OrderHdrModel {
     private long orderTotal;
 
     @NotNull
+    private long taxAmount;
+
+    @NotNull
     private String orderStatus;
 
     @NotNull
     private int orderAddressId;
 
     @NotNull
-    private String orderCreatedDate;
+    @DateTimeFormat
+    private Date orderCreatedDate;
 
     @NotNull
-    private String orderUpdatedDate;
+    @DateTimeFormat
+    private Date orderUpdatedDate;
+
+    @NotNull
+    @DateTimeFormat
+    private Date expectedDeliveryDate;
 
     public OrderHdrModel(){}
 }

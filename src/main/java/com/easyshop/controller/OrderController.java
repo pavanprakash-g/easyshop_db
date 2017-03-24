@@ -49,6 +49,9 @@ public class OrderController {
     @Autowired
     private CartRepository cartRepository;
 
+    @Autowired
+    private TaxRepository taxRepository;
+
     @RequestMapping(value = "/getOrders", method = GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity getOrders(HttpServletRequest request, @RequestParam(name = "custId", required = false, defaultValue ="0") int id) throws Exception{
         if(!EasyShopUtil.isValidCustomer(userRepository, request)){
@@ -96,6 +99,17 @@ public class OrderController {
         OrderUtil.updateStatus(orderHdrRepository, orderDtlRepository, orderDtlModel, orderItemStatus);
         JSONObject resp = new JSONObject();
         resp.put("status", true);
+        return ResponseEntity.ok(resp.toString());
+    }
+
+    @RequestMapping(value = "/getTax", method = GET, produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity getTaxInfo(HttpServletRequest request, @RequestParam(name = "zipcode") int zipcode) throws Exception{
+        if(!EasyShopUtil.isValidCustomer(userRepository, request)){
+            return ResponseEntity.badRequest().body("Invalid Auth Token");
+        }
+        JSONObject resp = new JSONObject();
+        resp.put("status", true);
+        resp.put("taxPercentage", taxRepository.findByZipcode(zipcode).getTaxPercentage());
         return ResponseEntity.ok(resp.toString());
     }
 }

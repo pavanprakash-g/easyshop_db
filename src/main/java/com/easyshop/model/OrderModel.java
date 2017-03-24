@@ -2,6 +2,7 @@ package com.easyshop.model;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -31,16 +32,25 @@ public class OrderModel {
     private long orderTotal;
 
     @NotNull
+    private long taxAmount;
+
+    @NotNull
     private String orderStatus;
 
     @NotNull
     private int orderAddressId;
 
     @NotNull
-    private String orderCreatedDate;
+    @DateTimeFormat
+    private Date orderCreatedDate;
 
     @NotNull
-    private String orderUpdatedDate;
+    @DateTimeFormat
+    private Date orderUpdatedDate;
+
+    @NotNull
+    @DateTimeFormat
+    private Date expectedDeliveryDate;
 
     @OneToMany
     private List<OrderDtlModel> items;
