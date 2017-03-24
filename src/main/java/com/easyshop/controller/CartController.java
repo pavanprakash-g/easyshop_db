@@ -55,6 +55,17 @@ public class CartController {
         return ResponseEntity.ok(response.toString());
     }
 
+    @RequestMapping(value = "/getCartCount", method = GET, produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity getCartCount(HttpServletRequest request) throws Exception{
+        if(!EasyShopUtil.isValidCustomer(userRepository, request)){
+            return ResponseEntity.badRequest().body("Invalid Auth Token");
+        }
+        JSONObject response = new JSONObject();
+        long custId = EasyShopUtil.getCustIdByToken(userRepository, request);
+        response.put("cartCount", commonRepository.getCartCount(custId).size());
+        return ResponseEntity.ok(response.toString());
+    }
+
     @RequestMapping(value = "/addToCart", method = POST, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity addToCart(HttpServletRequest request, @RequestBody CartModel cartModel) throws Exception{
         if(!EasyShopUtil.isValidCustomer(userRepository, request)){
