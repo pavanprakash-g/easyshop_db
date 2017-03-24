@@ -40,7 +40,7 @@ public class AddressModel {
     private String country;
 
     @NotNull
-    private int zipcode;
+    private Integer zipcode;
 
     @NotNull
     private String phoneNumber;

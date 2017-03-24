@@ -2,6 +2,7 @@ package com.easyshop.controller;
 
 import com.easyshop.model.AddressModel;
 import com.easyshop.model.UserModel;
+import com.easyshop.model.CardModel;
 import com.easyshop.repository.AddressRepository;
 import com.easyshop.repository.CardRepository;
 import com.easyshop.repository.UserRepository;
@@ -77,11 +78,15 @@ public class ProfileController {
         return ResponseEntity.ok(addressRepository.findByAddressId(addressId));
     }
 
-    @RequestMapping(value = "/cards", method = PUT, produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity getCards(HttpServletRequest request){
+    @RequestMapping(value = "/card", method = PUT, produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity udpateCards(HttpServletRequest request, @RequestBody CardModel cardModel) throws Exception{
         if(!EasyShopUtil.isValidCustomer(userRepository, request)){
             return ResponseEntity.badRequest().body("Invalid Auth Token");
         }
-        return ResponseEntity.ok(cardRepository.findAll());
+        cardRepository.save(cardModel);
+        JSONObject response = new JSONObject();
+        response.put("status",true);
+        return ResponseEntity.ok(response.toString());
     }
+
 }
