@@ -61,8 +61,8 @@ public class OrderController {
     }
 
     @RequestMapping(value = "/createOrders", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
-    public ResponseEntity createOrder(HttpServletRequest request, @RequestBody OrderModel orderModel) throws Exception{
-        if(!EasyShopUtil.isValidCustomer(userRepository, request)){
+    public ResponseEntity createOrder(HttpServletRequest request, @RequestBody OrderModel orderModel) throws Exception {
+        if (!EasyShopUtil.isValidCustomer(userRepository, request)) {
             return ResponseEntity.badRequest().body("Invalid Auth Token");
         }
         long orderId = EasyShopUtil.getMaxId("order_hdr", "order_id", commonRepository);
@@ -76,6 +76,7 @@ public class OrderController {
         response.put("status", true);
         return ResponseEntity.ok(response.toString());
     }
+
 
     @RequestMapping(value = "/updateOrder", method = PUT, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity updateOrder(HttpServletRequest request, @RequestParam(name = "orderId") long orderId, @RequestParam(name = "orderStatus") String orderStatus) throws Exception{

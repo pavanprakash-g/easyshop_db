@@ -1,0 +1,270 @@
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
+
+CREATE SCHEMA IF NOT EXISTS `easyshop` DEFAULT CHARACTER SET utf8 ;
+USE `easyshop` ;
+
+-- -----------------------------------------------------
+-- Table `easyshop`.`questions`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `easyshop`.`questions` (
+  `SECURITY_QUES_ID` INT(11) NOT NULL,
+  `SECURITY_QUES_DESCRIPTION` VARCHAR(45) NOT NULL,
+  `SECURITY_QUES_STATUS` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`SECURITY_QUES_ID`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `easyshop`.`customer`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `easyshop`.`customer` (
+  `CUST_ID` INT(11) NOT NULL AUTO_INCREMENT,
+  `CUST_FIRST_NAME` VARCHAR(45) NOT NULL,
+  `CUST_LAST_NAME` VARCHAR(45) NOT NULL,
+  `CUST_EMAILID` VARCHAR(45) NOT NULL,
+  `CUST_PHONE_NUMBER` VARCHAR(20) NOT NULL,
+  `CUST_PASSWORD` VARCHAR(255) NOT NULL,
+  `ADDRESS1` VARCHAR(45) NULL DEFAULT NULL,
+  `ADDRESS2` VARCHAR(45) NULL DEFAULT NULL,
+  `CITY` VARCHAR(45) NOT NULL,
+  `STATE` VARCHAR(45) NOT NULL,
+  `ZIPCODE` INT(11) NOT NULL,
+  `SECURITY_QUES_ID` INT(11) NOT NULL,
+  `SECURITY_QUES_ANS` VARCHAR(45) NOT NULL,
+  `ACTIVE_STATUS` BIT(1) NULL DEFAULT NULL,
+  `AUTH_TOKEN` VARCHAR(45) NULL DEFAULT NULL,
+  PRIMARY KEY (`CUST_ID`),
+  INDEX `SECURITY_QUES_ID_idx` (`SECURITY_QUES_ID` ASC),
+  CONSTRAINT `SECURITY_QUES_ID`
+    FOREIGN KEY (`SECURITY_QUES_ID`)
+    REFERENCES `easyshop`.`questions` (`SECURITY_QUES_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+AUTO_INCREMENT = 3
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `easyshop`.`address`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `easyshop`.`address` (
+  `ADDRESS_ID` INT(11) NOT NULL AUTO_INCREMENT,
+  `CUST_ID` INT(11) NULL DEFAULT NULL,
+  `ADDRESS1` VARCHAR(45) NULL DEFAULT NULL,
+  `ADDRESS2` VARCHAR(45) NULL DEFAULT NULL,
+  `CITY` VARCHAR(45) NULL DEFAULT NULL,
+  `STATE` VARCHAR(45) NULL DEFAULT NULL,
+  `PHONE_NUMBER` VARCHAR(45) NULL DEFAULT NULL,
+  `COUNTRY` VARCHAR(30) NULL DEFAULT NULL,
+  `ZIPCODE` INT(11) NULL DEFAULT NULL,
+  PRIMARY KEY (`ADDRESS_ID`),
+  INDEX `ADDRESS_1` (`CUST_ID` ASC),
+  CONSTRAINT `ADDRESS_1`
+    FOREIGN KEY (`CUST_ID`)
+    REFERENCES `easyshop`.`customer` (`CUST_ID`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 4
+DEFAULT CHARACTER SET = latin1;
+
+
+-- -----------------------------------------------------
+-- Table `easyshop`.`billingaddress`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `easyshop`.`billingaddress` (
+  `BILLING_ID` INT(11) NOT NULL AUTO_INCREMENT,
+  `CUST_ID2` INT(11) NOT NULL,
+  `BILLING_ADDRESS1` VARCHAR(45) NULL DEFAULT NULL,
+  `BILLING_ADDRESS2` VARCHAR(45) NULL DEFAULT NULL,
+  `BILLING_CITY` VARCHAR(45) NOT NULL,
+  `BILLING_STATE` VARCHAR(45) NOT NULL,
+  `BILLING_ZIPCODE` INT(11) NOT NULL,
+  `BILLING_PHONE_NUMBER` VARCHAR(15) NULL DEFAULT NULL,
+  PRIMARY KEY (`BILLING_ID`),
+  UNIQUE INDEX `BILLING_ID_UNIQUE` (`BILLING_ID` ASC),
+  INDEX `CUST_ID2_idx` (`CUST_ID2` ASC),
+  CONSTRAINT `CUST_ID2`
+    FOREIGN KEY (`CUST_ID2`)
+    REFERENCES `easyshop`.`customer` (`CUST_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `easyshop`.`card`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `easyshop`.`card` (
+  `CARD_ID` INT(11) NOT NULL AUTO_INCREMENT,
+  `CUST_ID` INT(11) NULL DEFAULT NULL,
+  `CARD_NUMBER` VARCHAR(25) NULL DEFAULT NULL,
+  `CARD_CVV` INT(11) NOT NULL,
+  `CARD_EXP_MON` INT(11) NULL DEFAULT NULL,
+  `CARD_EXP_YR` INT(11) NULL DEFAULT NULL,
+  PRIMARY KEY (`CARD_ID`),
+  UNIQUE INDEX `CARD_ID_UNIQUE` (`CARD_ID` ASC),
+  INDEX `CUST_ID3_idx` (`CUST_ID` ASC),
+  CONSTRAINT `card_ibfk_1`
+    FOREIGN KEY (`CUST_ID`)
+    REFERENCES `easyshop`.`customer` (`CUST_ID`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 2
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `easyshop`.`cart`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `easyshop`.`cart` (
+  `CART_ITEM_ID` BIGINT(20) NOT NULL AUTO_INCREMENT,
+  `ITEM_ID` INT(11) NOT NULL,
+  `CUST_ID` INT(11) NOT NULL,
+  PRIMARY KEY (`CART_ITEM_ID`),
+  INDEX `CART_1` (`CUST_ID` ASC),
+  CONSTRAINT `CART_1`
+    FOREIGN KEY (`CUST_ID`)
+    REFERENCES `easyshop`.`customer` (`CUST_ID`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `easyshop`.`item`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `easyshop`.`item` (
+  `ITEM_ID` BIGINT(20) NOT NULL AUTO_INCREMENT,
+  `ITEM_NAME` VARCHAR(45) NOT NULL,
+  `ITEM_DESCRIPTION` VARCHAR(100) NOT NULL,
+  `ITEM_PRICE` FLOAT NOT NULL,
+  `ITEM_QUANTITY` INT(11) NOT NULL,
+  `ITEM_IMAGE` BLOB NULL DEFAULT NULL,
+  PRIMARY KEY (`ITEM_ID`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 5
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `easyshop`.`order_dtl`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `easyshop`.`order_dtl` (
+  `ORDER_DTL_ID` BIGINT(20) NOT NULL AUTO_INCREMENT,
+  `ORDER_ID` INT(11) NOT NULL,
+  `ORDER_ITEM_ID` INT(11) NOT NULL,
+  `ORDER_ITEM_QUANTITY` INT(11) NOT NULL,
+  `ORDER_ITEM_PRICE` FLOAT NOT NULL,
+  `ORDER_ITEM_STATUS` VARCHAR(20) NULL DEFAULT NULL,
+  PRIMARY KEY (`ORDER_DTL_ID`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 13
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `easyshop`.`order_hdr`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `easyshop`.`order_hdr` (
+  `ORDER_HDR_ID` BIGINT(20) NOT NULL AUTO_INCREMENT,
+  `ORDER_ID` INT(11) NOT NULL,
+  `CUST_ID` INT(11) NOT NULL,
+  `ORDER_ITEM_COUNT` INT(11) NOT NULL,
+  `ORDER_TOTAL` FLOAT NOT NULL,
+  `ORDER_STATUS` VARCHAR(20) NOT NULL,
+  `ORDER_ADDRESS_ID` INT(11) NOT NULL,
+  `ORDER_CREATED_DATE` VARCHAR(20) NOT NULL,
+  `ORDER_UPDATED_DATE` VARCHAR(20) NOT NULL,
+  PRIMARY KEY (`ORDER_HDR_ID`),
+  INDEX `ORDER_HDR_1` (`CUST_ID` ASC),
+  CONSTRAINT `ORDER_HDR_1`
+    FOREIGN KEY (`CUST_ID`)
+    REFERENCES `easyshop`.`customer` (`CUST_ID`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 13
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `easyshop`.`shipmentaddress`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `easyshop`.`shipmentaddress` (
+  `SHIPMENT_ID` INT(11) NOT NULL AUTO_INCREMENT,
+  `CUST_ID1` INT(11) NOT NULL,
+  `SHIPMENT_ADDRESS1` VARCHAR(45) NULL DEFAULT NULL,
+  `SHIPMENT_ADDRESS2` VARCHAR(45) NOT NULL,
+  `SHIPMENT_CITY` VARCHAR(45) NOT NULL,
+  `SHIPMENT_STATE` VARCHAR(45) NOT NULL,
+  `SHIPMENT_PHONE_NUMBER` INT(11) NULL DEFAULT NULL,
+  `SHIPMENT_ZIPCODE` INT(11) NULL DEFAULT NULL,
+  PRIMARY KEY (`SHIPMENT_ID`),
+  UNIQUE INDEX `SHIPPING_ID_UNIQUE` (`SHIPMENT_ID` ASC),
+  INDEX `CUST_ID1_idx` (`CUST_ID1` ASC),
+  CONSTRAINT `CUST_ID1`
+    FOREIGN KEY (`CUST_ID1`)
+    REFERENCES `easyshop`.`customer` (`CUST_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `easyshop`.`subs_next_due_date`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `easyshop`.`subs_next_due_date` (
+  `SUBS_ORDER_ID` BIGINT(20) NOT NULL AUTO_INCREMENT,
+  `SUBSCRIPTION_TYPE` INT(11) NOT NULL,
+  `NEXT_DUE_DATE` DATETIME NOT NULL,
+  PRIMARY KEY (`SUBS_ORDER_ID`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 2
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `easyshop`.`subs_order_dtl`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `easyshop`.`subs_order_dtl` (
+  `SUBS_ORDER_DTL_ID` BIGINT(20) NOT NULL AUTO_INCREMENT,
+  `SUBS_ORDER_ID` INT(11) NOT NULL,
+  `SUBS_ORDER_ITEM_ID` INT(11) NOT NULL,
+  `SUBS_ORDER_ITEM_QUANTITY` INT(11) NOT NULL,
+  `SUBS_ORDER_ITEM_PRICE` FLOAT NOT NULL,
+  `SUBS_ORDER_ITEM_STATUS` VARCHAR(20) NULL DEFAULT NULL,
+  `SUBS_ORDER_ITEM_NAME` VARCHAR(20) NULL DEFAULT NULL,
+  PRIMARY KEY (`SUBS_ORDER_DTL_ID`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 2
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `easyshop`.`subs_order_hdr`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `easyshop`.`subs_order_hdr` (
+  `SUBS_ORDER_HDR_ID` BIGINT(20) NOT NULL AUTO_INCREMENT,
+  `SUBS_ORDER_ID` INT(11) NOT NULL,
+  `CUST_ID` INT(11) NOT NULL,
+  `SUBS_ORDER_ITEM_COUNT` INT(11) NOT NULL,
+  `SUBS_ORDER_TOTAL` FLOAT NOT NULL,
+  `SUBS_ORDER_STATUS` VARCHAR(20) NOT NULL,
+  `SUBS_ORDER_ADDRESS_ID` INT(11) NOT NULL,
+  `SUBS_ORDER_CREATED_DATE` DATE NOT NULL,
+  `SUBS_ORDER_UPDATED_DATE` DATE NOT NULL,
+  PRIMARY KEY (`SUBS_ORDER_HDR_ID`),
+  INDEX `SUBS_ORDER_HDR_1` (`CUST_ID` ASC),
+  CONSTRAINT `SUBS_ORDER_HDR_1`
+    FOREIGN KEY (`CUST_ID`)
+    REFERENCES `easyshop`.`customer` (`CUST_ID`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 2
+DEFAULT CHARACTER SET = utf8;
+
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+

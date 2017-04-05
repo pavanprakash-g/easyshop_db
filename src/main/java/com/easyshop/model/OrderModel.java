@@ -56,4 +56,8 @@ public class OrderModel {
     private List<OrderDtlModel> items;
 
     public OrderModel(){}
+
+    public void setOrderUpdatedDate(String orderUpdatedDate) {
+        this.orderUpdatedDate = orderUpdatedDate;
+    }
 }
