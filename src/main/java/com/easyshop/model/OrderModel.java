@@ -57,7 +57,4 @@ public class OrderModel {
 
     public OrderModel(){}
 
-    public void setOrderUpdatedDate(String orderUpdatedDate) {
-        this.orderUpdatedDate = orderUpdatedDate;
-    }
 }

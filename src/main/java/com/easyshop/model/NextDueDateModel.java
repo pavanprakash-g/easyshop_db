@@ -3,6 +3,7 @@ package com.easyshop.model;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -28,5 +29,6 @@ public class NextDueDateModel {
     private int subscriptionType; // 1: 1 month; 2: 2 months; 3: 3 months; 6: 6 months; 12: 12 months
 
     @NotNull
+    @DateTimeFormat
     private Calendar nextDueDate;
 }

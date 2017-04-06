@@ -31,13 +31,16 @@ public class SubscriptionOrderModel {
     private String subsOrderStatus;
 
     @NotNull
+    private long subsTaxAmount;
+
+    @NotNull
     private int subsOrderAddressId;
 
     @NotNull
-    private String subsOrderCreatedDate;
+    private Date subsOrderCreatedDate;
 
     @NotNull
-    private String subsOrderUpdatedDate;
+    private Date subsOrderUpdatedDate;
 
     @OneToMany
     private List<SubscriptionOrderDtlModel> items;

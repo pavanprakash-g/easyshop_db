@@ -36,16 +36,19 @@ public class SubscriptionOrderHdrModel {
     private long subsOrderTotal;
 
     @NotNull
+    private long subsTaxAmount;
+
+    @NotNull
     private String subsOrderStatus;
 
     @NotNull
     private int subsOrderAddressId;
 
     @NotNull
-    private String subsOrderCreatedDate;
+    private Date subsOrderCreatedDate;
 
     @NotNull
-    private String subsOrderUpdatedDate;
+    private Date subsOrderUpdatedDate;
 
     public SubscriptionOrderHdrModel(){}
 
