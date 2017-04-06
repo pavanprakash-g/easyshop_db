@@ -6,6 +6,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.validation.constraints.NotNull;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 /**
@@ -44,6 +45,12 @@ public class SubscriptionOrderModel {
     @NotNull
     @DateTimeFormat
     private Date subsOrderUpdatedDate;
+
+    @NotNull
+    private  int subscriptionType;
+
+    @NotNull
+    private Calendar nextDueDate;
 
     @OneToMany
     private List<SubscriptionOrderDtlModel> items;
