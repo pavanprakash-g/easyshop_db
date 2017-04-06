@@ -5,6 +5,7 @@ import lombok.Setter;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.validation.constraints.NotNull;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 /**
@@ -41,6 +42,12 @@ public class SubscriptionOrderModel {
 
     @NotNull
     private Date subsOrderUpdatedDate;
+
+    @NotNull
+    private  int subscriptionType;
+
+    @NotNull
+    private Calendar nextDueDate;
 
     @OneToMany
     private List<SubscriptionOrderDtlModel> items;

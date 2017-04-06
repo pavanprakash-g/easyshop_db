@@ -45,6 +45,7 @@ public class SubscriptionUtil {
         subscriptionOrderHdrModel.setSubsOrderTotal(subscriptionOrderModel.getSubsOrderTotal());
         subscriptionOrderHdrModel.setSubsOrderAddressId(subscriptionOrderModel.getSubsOrderAddressId());
         subscriptionOrderHdrModel.setSubsOrderUpdatedDate(subscriptionOrderModel.getSubsOrderUpdatedDate());
+
         return subscriptionOrderHdrModel;
     }
 
@@ -125,7 +126,7 @@ public class SubscriptionUtil {
         subscriptionOrderDtlRepository.save(subscriptionOrderDtlModel);
     }
 
-    public void updateNextDueDate(NextDueDateModel nextDueDateModel,Calendar date1){
+        public void updateNextDueDate(NextDueDateModel nextDueDateModel,Calendar date1){
 
         nextDueDateModel.setNextDueDate(date1);
         System.out.print("Time Updated:");
@@ -133,9 +134,58 @@ public class SubscriptionUtil {
         nextDueDateRepository.save(nextDueDateModel);
     }
 
-
-    public OrderHdrModel constructHdrModel(SubscriptionOrderHdrModel subscriptionOrderHdrModel)
+    public static NextDueDateModel constructNextDueDate(SubscriptionOrderModel subscriptionOrderModel)
     {
+            NextDueDateModel nextDueDateModel = new NextDueDateModel();
+            int subs_type=subscriptionOrderModel.getSubscriptionType();
+            nextDueDateModel.setSubscriptionType(subs_type);
+
+        if(subs_type==1)
+        {
+
+            Date date1= subscriptionOrderModel.getSubsOrderCreatedDate();
+            Calendar cal1 = Calendar.getInstance();
+            cal1.setTime(date1);
+            cal1.add(Calendar.MONTH, 1);
+            nextDueDateModel.setNextDueDate(cal1);
+        }
+        else if(subs_type==2)
+        {
+            Date date1= subscriptionOrderModel.getSubsOrderCreatedDate();
+            Calendar cal1 = Calendar.getInstance();
+            cal1.setTime(date1);
+            cal1.add(Calendar.MONTH, 2);
+            nextDueDateModel.setNextDueDate(cal1);
+        }
+        else if(subs_type==3)
+        {
+            Date date1= subscriptionOrderModel.getSubsOrderCreatedDate();
+            Calendar cal1 = Calendar.getInstance();
+            cal1.setTime(date1);
+            cal1.add(Calendar.MONTH, 3);
+            nextDueDateModel.setNextDueDate(cal1);
+        }
+        else if(subs_type==6)
+        {
+            Date date1= subscriptionOrderModel.getSubsOrderCreatedDate();
+            Calendar cal1 = Calendar.getInstance();
+            cal1.setTime(date1);
+            cal1.add(Calendar.MONTH, 6);
+            nextDueDateModel.setNextDueDate(cal1);
+        }
+        else if(subs_type==12)
+        {
+            Date date1= subscriptionOrderModel.getSubsOrderCreatedDate();
+            Calendar cal1 = Calendar.getInstance();
+            cal1.setTime(date1);
+            cal1.add(Calendar.MONTH, 12);
+            nextDueDateModel.setNextDueDate(cal1);
+        }
+        nextDueDateModel.setSubsOrderId(subscriptionOrderModel.getSubsOrderId());
+        return nextDueDateModel;
+    }
+
+    public OrderHdrModel constructHdrModel(SubscriptionOrderHdrModel subscriptionOrderHdrModel) {
         OrderHdrModel orderHdrModel = new OrderHdrModel();
         orderHdrModel.setOrderId(subscriptionOrderHdrModel.getSubsOrderId());
         orderHdrModel.setCustId(subscriptionOrderHdrModel.getCustId());
@@ -149,7 +199,9 @@ public class SubscriptionUtil {
         orderHdrModel.setOrderUpdatedDate(subscriptionOrderHdrModel.getSubsOrderUpdatedDate());
         orderHdrModel.setExpectedDeliveryDate(subscriptionOrderHdrModel.getSubsOrderUpdatedDate());
         return orderHdrModel;
+
     }
+
 
     public Vector<OrderDtlModel> constructDtlModel(Iterable <SubscriptionOrderDtlModel> subscriptionOrderDtlModels)
     {
@@ -196,8 +248,9 @@ public class SubscriptionUtil {
                     if(subs_type==1)
                     {
                         date1.add(Calendar.MONTH, 1);
-                        date1.add(Calendar.DAY_OF_MONTH, 5);
-                        Date delivery_date=date1.getTime();
+                        Calendar date2=date1;
+                        date2.add(Calendar.DAY_OF_MONTH, 5);
+                        Date delivery_date=date2.getTime();
                         updateNextDueDate(nextDueDateModel,date1);
                         orderHdrRepository.save(orderHdrModel);
                         orderHdrModel.setExpectedDeliveryDate(delivery_date);
@@ -205,7 +258,8 @@ public class SubscriptionUtil {
                     else if(subs_type==2)
                     {
                         date1.add(Calendar.MONTH, 2);
-                        date1.add(Calendar.DAY_OF_MONTH, 5);
+                        Calendar date2=date1;
+                        date2.add(Calendar.DAY_OF_MONTH, 5);
                         Date delivery_date=date1.getTime();
                         updateNextDueDate(nextDueDateModel,date1);
                         orderHdrRepository.save(orderHdrModel);
@@ -214,7 +268,8 @@ public class SubscriptionUtil {
                     else if(subs_type==3)
                     {
                         date1.add(Calendar.MONTH, 3);
-                        date1.add(Calendar.DAY_OF_MONTH, 5);
+                        Calendar date2=date1;
+                        date2.add(Calendar.DAY_OF_MONTH, 5);
                         Date delivery_date=date1.getTime();
                         updateNextDueDate(nextDueDateModel,date1);
                         orderHdrRepository.save(orderHdrModel);
@@ -223,7 +278,8 @@ public class SubscriptionUtil {
                     else if(subs_type==6)
                     {
                         date1.add(Calendar.MONTH, 6);
-                        date1.add(Calendar.DAY_OF_MONTH, 5);
+                        Calendar date2=date1;
+                        date2.add(Calendar.DAY_OF_MONTH, 5);
                         Date delivery_date=date1.getTime();
                         updateNextDueDate(nextDueDateModel,date1);
                         orderHdrRepository.save(orderHdrModel);
@@ -232,7 +288,8 @@ public class SubscriptionUtil {
                     else if(subs_type==12)
                     {
                         date1.add(Calendar.MONTH, 12);
-                        date1.add(Calendar.DAY_OF_MONTH, 5);
+                        Calendar date2=date1;
+                        date2.add(Calendar.DAY_OF_MONTH, 5);
                         Date delivery_date=date1.getTime();
                         updateNextDueDate(nextDueDateModel,date1);
                         orderHdrRepository.save(orderHdrModel);

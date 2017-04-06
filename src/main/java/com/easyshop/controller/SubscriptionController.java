@@ -2,6 +2,7 @@ package com.easyshop.controller;
 import com.easyshop.model.SubscriptionOrderDtlModel;
 import com.easyshop.model.SubscriptionOrderHdrModel;
 import com.easyshop.model.SubscriptionOrderModel;
+import com.easyshop.model.NextDueDateModel;
 import com.easyshop.repository.*;
 import com.easyshop.util.EasyShopUtil;
 import com.easyshop.util.SubscriptionUtil;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 
 import java.util.List;
-
+import java.util.Date;
 import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
@@ -49,6 +50,9 @@ public class SubscriptionController {
     @Autowired
     private CartRepository cartRepository;
 
+    @Autowired
+    private  NextDueDateRepository nextDueDateRepository;
+
     @RequestMapping(value = "/getSubscriptionOrders", method = GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity getSubscriptionOrders(HttpServletRequest request, @RequestParam(name = "custId", required = false, defaultValue ="0") int id) throws Exception{
         if(!EasyShopUtil.isValidCustomer(userRepository, request)){
@@ -69,6 +73,7 @@ public class SubscriptionController {
         SubscriptionUtil.updateSubscriptionDtlModel(subscriptionOrderModel, catalogRepository);
         subscriptionOrderDtlRepository.save(subscriptionOrderModel.getItems());
         cartRepository.delete(cartRepository.findByCustId(subscriptionOrderModel.getCustId()));
+        NextDueDateModel nextDueDateModel = SubscriptionUtil.constructNextDueDate(subscriptionOrderModel);
         JSONObject response = new JSONObject();
         response.put("status", true);
         return ResponseEntity.ok(response.toString());
