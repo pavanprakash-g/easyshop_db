@@ -27,5 +27,5 @@ public class CartModel {
     @NotNull
     private int itemId;
 
-    CartModel(){}
+    public CartModel(){}
 }

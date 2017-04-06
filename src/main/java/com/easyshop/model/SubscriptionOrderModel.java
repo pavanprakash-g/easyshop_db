@@ -1,6 +1,7 @@
 package com.easyshop.model;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -37,9 +38,11 @@ public class SubscriptionOrderModel {
     private int subsOrderAddressId;
 
     @NotNull
+    @DateTimeFormat
     private Date subsOrderCreatedDate;
 
     @NotNull
+    @DateTimeFormat
     private Date subsOrderUpdatedDate;
 
     @OneToMany

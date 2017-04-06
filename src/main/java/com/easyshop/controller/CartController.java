@@ -88,7 +88,12 @@ public class CartController {
         if("remove".equals(type)){
             cartRepository.delete(cartRepository.findByItemId(itemId));
         }else if("reduce".equals(type)) {
-            cartRepository.delete(cartRepository.findTopByCustId(custId));
+            cartRepository.delete(cartRepository.findTopByCustIdAndItemId(custId, itemId));
+        }else if("increase".equals(type)) {
+            CartModel cartModel = new CartModel();
+            cartModel.setCustId(custId);
+            cartModel.setItemId(itemId);
+            cartRepository.save(cartModel);
         }
         response.put("data", commonRepository.getCartDetails(custId));
         response.put("cartCount", commonRepository.getCartCount(custId).size());

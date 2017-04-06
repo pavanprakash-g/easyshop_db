@@ -118,7 +118,7 @@ public class OrderUtil {
         orderModel.setOrderItemCount(orderHdrModel.getOrderItemCount());
         orderModel.setOrderTotal(orderHdrModel.getOrderTotal());
         orderModel.setOrderAddressId(orderHdrModel.getOrderAddressId());
-        orderModel.setOrderUpdatedDate(orderHdrModel.getOrderUpdatedDate());
+        orderModel.setOrderCreatedDate(orderHdrModel.getOrderCreatedDate());
         orderModel.setOrderUpdatedDate(orderHdrModel.getOrderUpdatedDate());
         orderModel.setExpectedDeliveryDate(new Date(orderHdrModel.getExpectedDeliveryDate().getTime()));
     }

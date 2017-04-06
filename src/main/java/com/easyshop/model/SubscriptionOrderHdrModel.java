@@ -6,6 +6,8 @@ import lombok.Setter;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
+
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 /**
@@ -45,9 +47,11 @@ public class SubscriptionOrderHdrModel {
     private int subsOrderAddressId;
 
     @NotNull
+    @DateTimeFormat
     private Date subsOrderCreatedDate;
 
     @NotNull
+    @DateTimeFormat
     private Date subsOrderUpdatedDate;
 
     public SubscriptionOrderHdrModel(){}

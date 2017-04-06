@@ -56,5 +56,4 @@ public class OrderModel {
     private List<OrderDtlModel> items;
 
     public OrderModel(){}
-
 }
