@@ -46,6 +46,9 @@ public class OrderHdrModel {
     private int orderAddressId;
 
     @NotNull
+    private int orderBillingAddrId;
+
+    @NotNull
     @DateTimeFormat
     private Date orderCreatedDate;
 

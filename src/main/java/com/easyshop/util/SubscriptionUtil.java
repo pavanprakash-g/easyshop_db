@@ -69,36 +69,24 @@ public class SubscriptionUtil {
     public static List<SubscriptionOrderModel> getSubscriptionData(int id, SubscriptionOrderHdrRepository subscriptionOrderHdrRepository, SubscriptionOrderDtlRepository subscriptionOrderDtlRepository, CatalogRepository catalogRepository){
         List<SubscriptionOrderModel> subscriptionOrderModelList = new ArrayList<>();
         long subscriptionOrderId;
-        if(id == 0){
-            Iterable<SubscriptionOrderHdrModel> subscriptionOrderHdrModels = subscriptionOrderHdrRepository.findAll();
-            for(SubscriptionOrderHdrModel subscriptionOrderHdrModel : subscriptionOrderHdrModels){
-                SubscriptionOrderModel subscriptionOrderModel = new SubscriptionOrderModel();
-                subscriptionOrderId = subscriptionOrderHdrModel.getSubsOrderId();
-                Iterable<SubscriptionOrderDtlModel> subscriptionOrderDtlModels = subscriptionOrderDtlRepository.findBySubsOrderId(subscriptionOrderId);
-                List<SubscriptionOrderDtlModel> subscriptionOrderDtlModelList = new ArrayList<>();
-                for(SubscriptionOrderDtlModel subscriptionOrderDtlModel : subscriptionOrderDtlModels){
-                    subscriptionOrderDtlModel.setSubsOrderItemName(catalogRepository.findByItemId(subscriptionOrderDtlModel.getSubsOrderItemId()).getItemName());
-                    subscriptionOrderDtlModelList.add(subscriptionOrderDtlModel);
-                }
-                subscriptionOrderModel.setItems(subscriptionOrderDtlModelList);
-                saveSubscriptionData(subscriptionOrderModel, subscriptionOrderHdrModel);
-                subscriptionOrderModelList.add(subscriptionOrderModel);
+        int count = 0;
+        Iterable<SubscriptionOrderHdrModel> subscriptionOrderHdrModels = subscriptionOrderHdrRepository.findByCustId(id);
+        for(SubscriptionOrderHdrModel subscriptionOrderHdrModel : subscriptionOrderHdrModels) {
+            count++;
+            SubscriptionOrderModel subscriptionOrderModel = new SubscriptionOrderModel();
+            subscriptionOrderId = subscriptionOrderHdrModel.getSubsOrderId();
+            Iterable<SubscriptionOrderDtlModel> subscriptionOrderDtlModels = subscriptionOrderDtlRepository.findBySubsOrderId(subscriptionOrderId);
+            List<SubscriptionOrderDtlModel> subscriptionOrderDtlModelList = new ArrayList<>();
+            for (SubscriptionOrderDtlModel subscriptionOrderDtlModel : subscriptionOrderDtlModels) {
+                subscriptionOrderDtlModel.setSubsOrderItemName(catalogRepository.findByItemId(subscriptionOrderDtlModel.getSubsOrderItemId()).getItemName());
+                subscriptionOrderDtlModelList.add(subscriptionOrderDtlModel);
             }
-        }else{
-            Iterable<SubscriptionOrderHdrModel> subscriptionOrderHdrModels = subscriptionOrderHdrRepository.findByCustId(id);
-            for(SubscriptionOrderHdrModel subscriptionOrderHdrModel : subscriptionOrderHdrModels){
-                SubscriptionOrderModel subscriptionOrderModel = new SubscriptionOrderModel();
-                subscriptionOrderId = subscriptionOrderHdrModel.getSubsOrderId();
-                Iterable<SubscriptionOrderDtlModel> subscriptionOrderDtlModels = subscriptionOrderDtlRepository.findBySubsOrderId(subscriptionOrderId);
-                List<SubscriptionOrderDtlModel> subscriptionOrderDtlModelList = new ArrayList<>();
-                for(SubscriptionOrderDtlModel subscriptionOrderDtlModel : subscriptionOrderDtlModels){
-                    subscriptionOrderDtlModel.setSubsOrderItemName(catalogRepository.findByItemId(subscriptionOrderDtlModel.getSubsOrderItemId()).getItemName());
-                    subscriptionOrderDtlModelList.add(subscriptionOrderDtlModel);
-                }
-                subscriptionOrderModel.setItems(subscriptionOrderDtlModelList);
-                saveSubscriptionData(subscriptionOrderModel, subscriptionOrderHdrModel);
-                subscriptionOrderModelList.add(subscriptionOrderModel);
-            }
+            subscriptionOrderModel.setItems(subscriptionOrderDtlModelList);
+            saveSubscriptionData(subscriptionOrderModel, subscriptionOrderHdrModel);
+            subscriptionOrderModelList.add(subscriptionOrderModel);
+        }
+        if(count == 0){
+            subscriptionOrderModelList.add(new SubscriptionOrderModel());
         }
         return subscriptionOrderModelList;
     }

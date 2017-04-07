@@ -38,7 +38,7 @@ public class SubscriptionOrderHdrModel {
     private long subsOrderTotal;
 
     @NotNull
-    private long subsTaxAmount;
+    private long taxAmount;
 
     @NotNull
     private String subsOrderStatus;

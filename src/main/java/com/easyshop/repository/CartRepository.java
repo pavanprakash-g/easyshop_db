@@ -14,5 +14,5 @@ public interface CartRepository extends CrudRepository<CartModel, Long> {
 
     CartModel findTopByCustId(long custId);
 
-    CartModel findTopByCustIdAndItemId(long custId, long itemId);
+    CartModel findTopByCustIdAndItemId(long custId, int itemId);
 }

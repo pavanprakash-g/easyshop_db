@@ -33,7 +33,7 @@ public class SubscriptionOrderModel {
     private String subsOrderStatus;
 
     @NotNull
-    private long subsTaxAmount;
+    private long taxAmount;
 
     @NotNull
     private int subsOrderAddressId;

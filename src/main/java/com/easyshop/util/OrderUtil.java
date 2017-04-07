@@ -32,6 +32,7 @@ public class OrderUtil {
         orderHdrModel.setOrderItemCount(orderModel.getOrderItemCount());
         orderHdrModel.setOrderTotal(orderModel.getOrderTotal());
         orderHdrModel.setOrderAddressId(orderModel.getOrderAddressId());
+        orderHdrModel.setOrderBillingAddrId(orderModel.getOrderBillingAddrId());
         orderHdrModel.setOrderUpdatedDate(new Date());
         orderHdrModel.setExpectedDeliveryDate(getExpectedDate());
         return orderHdrModel;

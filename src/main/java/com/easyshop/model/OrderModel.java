@@ -41,6 +41,9 @@ public class OrderModel {
     private int orderAddressId;
 
     @NotNull
+    private int orderBillingAddrId;
+
+    @NotNull
     @DateTimeFormat
     private Date orderCreatedDate;
 
