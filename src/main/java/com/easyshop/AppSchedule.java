@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 
 public class AppSchedule {
 
-    @Scheduled(fixedRate = 20000)
+    //@Scheduled(fixedRate = 20000)
     public static void doTask(){
         System.out.println("We are in App Schedule");
     }

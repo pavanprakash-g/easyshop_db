@@ -52,6 +52,9 @@ public class SubscriptionOrderModel {
     @NotNull
     private Calendar nextDueDate;
 
+    @NotNull
+    private int subsOrderBillingAddrId;
+
     @OneToMany
     private List<SubscriptionOrderDtlModel> items;
 

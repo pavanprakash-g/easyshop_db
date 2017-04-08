@@ -6,7 +6,7 @@ import org.springframework.data.repository.CrudRepository;
  */
 public interface NextDueDateRepository extends CrudRepository<NextDueDateModel, Long> {
 
-    Iterable<NextDueDateModel> findBySubsOrderId(long orderId);
+    NextDueDateModel findBySubsOrderId(long orderId);
 
 
 }

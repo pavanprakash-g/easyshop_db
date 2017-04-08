@@ -54,6 +54,9 @@ public class SubscriptionOrderHdrModel {
     @DateTimeFormat
     private Date subsOrderUpdatedDate;
 
+    @NotNull
+    private int subsOrderBillingAddrId;
+
     public SubscriptionOrderHdrModel(){}
 
 }

@@ -31,7 +31,7 @@ public class SubscriptionOrderDtlModel {
     @NotNull
     private int subsOrderItemQuantity;
 
-    @NotNull
+    @Transient
     private long subsOrderItemPrice;
 
     @NotNull
