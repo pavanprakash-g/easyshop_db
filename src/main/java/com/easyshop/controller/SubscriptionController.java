@@ -7,6 +7,7 @@ import com.easyshop.model.NextDueDateModel;
 import com.easyshop.repository.*;
 import com.easyshop.util.EasyShopUtil;
 import com.easyshop.util.SubscriptionUtil;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,12 +57,15 @@ public class SubscriptionController {
     @Autowired
     private TaxRepository taxRepository;
 
+    @Autowired
+    private AddressRepository addressRepository;
+
     @RequestMapping(value = "/getSubscriptionOrders", method = GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity getSubscriptionOrders(HttpServletRequest request, @RequestParam(name = "custId", required = false, defaultValue ="0") int id) throws Exception{
         if(!EasyShopUtil.isValidCustomer(userRepository, request)){
             return ResponseEntity.badRequest().body("Invalid Auth Token");
          }
-        return ResponseEntity.ok(SubscriptionUtil.getSubscriptionData(id, subscriptionOrderHdrRepository, subscriptionOrderDtlRepository, catalogRepository, nextDueDateRepository, taxRepository));
+        return ResponseEntity.ok(SubscriptionUtil.getSubscriptionData(id, subscriptionOrderHdrRepository, subscriptionOrderDtlRepository, catalogRepository, nextDueDateRepository, taxRepository, addressRepository));
     }
 
     @RequestMapping(value = "/createSubscriptionOrders", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
@@ -76,6 +80,7 @@ public class SubscriptionController {
         SubscriptionUtil.updateSubscriptionDtlModel(subscriptionOrderModel, catalogRepository);
         subscriptionOrderDtlRepository.save(subscriptionOrderModel.getItems());
         NextDueDateModel nextDueDateModel = SubscriptionUtil.constructNextDueDate(subscriptionOrderModel, null);
+        logger.log(Level.INFO,nextDueDateModel.toString());
         nextDueDateRepository.save(nextDueDateModel);
         JSONObject response = new JSONObject();
         response.put("status", true);
@@ -113,11 +118,24 @@ public class SubscriptionController {
     }
 
     @RequestMapping(value = "/deleteSubscriptionOrderItem", method = DELETE, produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity deleteSubscriptionOrderItem(HttpServletRequest request, @RequestBody SubscriptionOrderDtlModel subscriptionOrderDtlModel) throws Exception{
+    public ResponseEntity deleteSubscriptionOrderItem(HttpServletRequest request, @RequestParam(name = "orderId") long orderId, @RequestParam(name = "itemId") int itemId) throws Exception{
         if(!EasyShopUtil.isValidCustomer(userRepository, request)){
             return ResponseEntity.badRequest().body("Invalid Auth Token");
         }
-        subscriptionOrderDtlRepository.delete(subscriptionOrderDtlModel);
+        subscriptionOrderDtlRepository.delete(subscriptionOrderDtlRepository.findBySubsOrderIdAndSubsOrderItemId(orderId, itemId));
+        JSONObject resp = new JSONObject();
+        resp.put("status", true);
+        return ResponseEntity.ok(resp.toString());
+    }
+
+    @RequestMapping(value = "/deleteSubscriptionOrder", method = DELETE, produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity deleteSubscriptionOrder(HttpServletRequest request, @RequestParam(name = "orderId") long orderId) throws Exception{
+        if(!EasyShopUtil.isValidCustomer(userRepository, request)){
+            return ResponseEntity.badRequest().body("Invalid Auth Token");
+        }
+        subscriptionOrderHdrRepository.delete(subscriptionOrderHdrRepository.findBySubsOrderId(orderId));
+        subscriptionOrderDtlRepository.delete(subscriptionOrderDtlRepository.findBySubsOrderId(orderId));
+        nextDueDateRepository.delete(nextDueDateRepository.findBySubsOrderId(orderId));
         JSONObject resp = new JSONObject();
         resp.put("status", true);
         return ResponseEntity.ok(resp.toString());

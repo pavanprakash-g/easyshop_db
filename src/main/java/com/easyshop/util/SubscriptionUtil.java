@@ -4,6 +4,7 @@ import com.easyshop.util.OrderUtil;
 import com.easyshop.model.*;
 import com.easyshop.repository.*;
 import org.apache.log4j.Level;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.apache.log4j.Logger;
@@ -35,7 +36,16 @@ public class SubscriptionUtil {
     private SubscriptionOrderDtlRepository subscriptionOrderDtlRepository;
 
     @Autowired
+    private AddressRepository addressRepository;
+
+    @Autowired
     private NextDueDateRepository nextDueDateRepository;
+
+    @Autowired
+    private TaxRepository taxRepository;
+
+    @Autowired
+    private CommonRepository commonRepository;
 
     private final static Logger logger = Logger.getLogger(SubscriptionUtil.class);
 
@@ -51,7 +61,9 @@ public class SubscriptionUtil {
         subscriptionOrderHdrModel.setSubsOrderTotal(subscriptionOrderModel.getSubsOrderTotal());
         subscriptionOrderHdrModel.setSubsOrderAddressId(subscriptionOrderModel.getSubsOrderAddressId());
         subscriptionOrderHdrModel.setSubsOrderBillingAddrId(subscriptionOrderModel.getSubsOrderBillingAddrId());
-        subscriptionOrderHdrModel.setSubsOrderUpdatedDate(subscriptionOrderModel.getSubsOrderUpdatedDate());
+        subscriptionOrderHdrModel.setSubsOrderUpdatedDate(new Date());
+        subscriptionOrderModel.setSubsOrderCreatedDate(new Date());
+        subscriptionOrderHdrModel.setSubsOrderCreatedDate(new Date());
 
         return subscriptionOrderHdrModel;
     }
@@ -73,18 +85,21 @@ public class SubscriptionUtil {
         }
     }
 
-    public static List<SubscriptionOrderModel> getSubscriptionData(int id, SubscriptionOrderHdrRepository subscriptionOrderHdrRepository, SubscriptionOrderDtlRepository subscriptionOrderDtlRepository, CatalogRepository catalogRepository, NextDueDateRepository nextDueDateRepository, TaxRepository taxRepository){
+    public static List<SubscriptionOrderModel> getSubscriptionData(int id, SubscriptionOrderHdrRepository subscriptionOrderHdrRepository, SubscriptionOrderDtlRepository subscriptionOrderDtlRepository, CatalogRepository catalogRepository, NextDueDateRepository nextDueDateRepository, TaxRepository taxRepository, AddressRepository addressRepository){
         List<SubscriptionOrderModel> subscriptionOrderModelList = new ArrayList<>();
         long subscriptionOrderId;
         long totalAmount;
+        long taxAmount;
         long itemPrice;
+        float taxPercentage;
         Iterable<SubscriptionOrderHdrModel> subscriptionOrderHdrModels = subscriptionOrderHdrRepository.findByCustId(id);
         for(SubscriptionOrderHdrModel subscriptionOrderHdrModel : subscriptionOrderHdrModels) {
             totalAmount = 0L;
+            taxAmount = 0L;
             SubscriptionOrderModel subscriptionOrderModel = new SubscriptionOrderModel();
             subscriptionOrderId = subscriptionOrderHdrModel.getSubsOrderId();
             Iterable<SubscriptionOrderDtlModel> subscriptionOrderDtlModels = subscriptionOrderDtlRepository.findBySubsOrderId(subscriptionOrderId);
-
+            taxPercentage = taxRepository.findByZipcode(addressRepository.findByAddressId(subscriptionOrderHdrModel.getSubsOrderAddressId()).getZipcode()).getTaxPercentage();
             List<SubscriptionOrderDtlModel> subscriptionOrderDtlModelList = new ArrayList<>();
             for (SubscriptionOrderDtlModel subscriptionOrderDtlModel : subscriptionOrderDtlModels) {
                 itemPrice = (long)catalogRepository.findByItemId(subscriptionOrderDtlModel.getSubsOrderItemId()).getItemPrice();
@@ -92,8 +107,10 @@ public class SubscriptionUtil {
                 subscriptionOrderDtlModel.setSubsOrderItemPrice(itemPrice);
                 subscriptionOrderDtlModelList.add(subscriptionOrderDtlModel);
                 totalAmount += itemPrice*subscriptionOrderDtlModel.getSubsOrderItemQuantity();
+                taxAmount += (taxPercentage/100)*itemPrice*subscriptionOrderDtlModel.getSubsOrderItemQuantity();
             }
-            subscriptionOrderHdrModel.setSubsOrderTotal(totalAmount);
+            subscriptionOrderHdrModel.setSubsOrderTotal(totalAmount+taxAmount);
+            subscriptionOrderHdrModel.setTaxAmount(taxAmount);
             subscriptionOrderModel.setItems(subscriptionOrderDtlModelList);
             saveSubscriptionData(subscriptionOrderModel, subscriptionOrderHdrModel);
             subscriptionOrderModel.setNextDueDate(nextDueDateRepository.findBySubsOrderId(subscriptionOrderId).getNextDueDate());
@@ -104,6 +121,7 @@ public class SubscriptionUtil {
     }
 
     private static void saveSubscriptionData(SubscriptionOrderModel subscriptionOrderModel, SubscriptionOrderHdrModel subscriptionOrderHdrModel){
+        subscriptionOrderModel.setSubsOrderHdrId(subscriptionOrderHdrModel.getSubsOrderHdrId());
         subscriptionOrderModel.setSubsOrderId(subscriptionOrderHdrModel.getSubsOrderId());
         subscriptionOrderModel.setCustId(subscriptionOrderHdrModel.getCustId());
         subscriptionOrderModel.setSubsOrderItemCount(subscriptionOrderHdrModel.getSubsOrderItemCount());
@@ -111,6 +129,7 @@ public class SubscriptionUtil {
         subscriptionOrderModel.setSubsOrderStatus(subscriptionOrderHdrModel.getSubsOrderStatus());
         subscriptionOrderModel.setSubsOrderItemCount(subscriptionOrderHdrModel.getSubsOrderItemCount());
         subscriptionOrderModel.setSubsOrderTotal(subscriptionOrderHdrModel.getSubsOrderTotal());
+        subscriptionOrderModel.setTaxAmount(subscriptionOrderHdrModel.getTaxAmount());
         subscriptionOrderModel.setSubsOrderAddressId(subscriptionOrderHdrModel.getSubsOrderAddressId());
         subscriptionOrderModel.setSubsOrderBillingAddrId(subscriptionOrderHdrModel.getSubsOrderBillingAddrId());
         subscriptionOrderModel.setSubsOrderCreatedDate(subscriptionOrderHdrModel.getSubsOrderCreatedDate());
@@ -140,6 +159,7 @@ public class SubscriptionUtil {
         if(nextDueDateModel == null) {
             nextDueDateModel = new NextDueDateModel();
         }
+        logger.log(Level.INFO,subscriptionOrderModel.toString());
         int subs_type=subscriptionOrderModel.getSubscriptionType();
         nextDueDateModel.setSubscriptionType(subs_type);
 
@@ -180,7 +200,7 @@ public class SubscriptionUtil {
 
     public OrderHdrModel constructHdrModel(SubscriptionOrderHdrModel subscriptionOrderHdrModel) {
         OrderHdrModel orderHdrModel = new OrderHdrModel();
-        orderHdrModel.setOrderId(subscriptionOrderHdrModel.getSubsOrderId());
+        orderHdrModel.setOrderId(EasyShopUtil.getMaxId("order_hdr","order_id",commonRepository));
         orderHdrModel.setCustId(subscriptionOrderHdrModel.getCustId());
         orderHdrModel.setOrderItemCount(subscriptionOrderHdrModel.getSubsOrderItemCount());
         orderHdrModel.setOrderTotal(subscriptionOrderHdrModel.getSubsOrderTotal());
@@ -196,20 +216,20 @@ public class SubscriptionUtil {
     }
 
 
-    public Vector<OrderDtlModel> constructDtlModel(Iterable <SubscriptionOrderDtlModel> subscriptionOrderDtlModels)
+    public Vector<OrderDtlModel> constructDtlModel(long orderId, Iterable <SubscriptionOrderDtlModel> subscriptionOrderDtlModels)
     {
         Vector<OrderDtlModel> orderDtlModels = new Vector<OrderDtlModel>();
         OrderDtlModel orderDtlModel = new OrderDtlModel();
         for(SubscriptionOrderDtlModel subscriptionOrderDtlModel0: subscriptionOrderDtlModels)
         {
-            orderDtlModel.setOrderId(subscriptionOrderDtlModel0.getSubsOrderId());
+            orderDtlModel.setOrderId(orderId);
             orderDtlModel.setOrderItemId(subscriptionOrderDtlModel0.getSubsOrderItemId());
             orderDtlModel.setOrderItemQuantity(subscriptionOrderDtlModel0.getSubsOrderItemQuantity());
             orderDtlModel.setOrderItemPrice(subscriptionOrderDtlModel0.getSubsOrderItemPrice());
             orderDtlModel.setOrderItemStatus(subscriptionOrderDtlModel0.getSubsOrderItemStatus());
             orderDtlModel.setOrderItemName(subscriptionOrderDtlModel0.getSubsOrderItemName());
-
             orderDtlModels.add(orderDtlModel);
+
         }
         return orderDtlModels;
     }
@@ -219,27 +239,33 @@ public class SubscriptionUtil {
     {
         logger.log(Level.INFO,"Inside the scheduler");
 
+        float taxPercentage;
+        long totalAmount = 0;
+        long taxAmount = 0;
+        int itemCount = 0;
         OrderHdrModel orderHdrModel = new OrderHdrModel();
-        Vector <OrderDtlModel> orderDtlModels;
+        Vector <OrderDtlModel> orderDtlModels = null;
         Iterable<NextDueDateModel> nextDueDateModels;
             nextDueDateModels=nextDueDateRepository.findAll();
             for(NextDueDateModel nextDueDateModel:nextDueDateModels)
             {
                 Calendar date1 = Calendar.getInstance();
                 Calendar date2 = Calendar.getInstance();
-              //  System.out.println(nextDueDateModel.getNextDueDate().get(Calendar.MONTH));
-              //  System.out.println(date1.get(Calendar.MONTH));
-               // if(date1.compareTo(nextDueDateModel.getNextDueDate()) == 0)
                 if(nextDueDateModel.getNextDueDate().before(date1))
                 {
                     System.out.println("Date Matches");
                     orderHdrModel=constructHdrModel(subscriptionOrderHdrRepository.findBySubsOrderId(nextDueDateModel.getSubsOrderId()));
-                    orderDtlModels=constructDtlModel(subscriptionOrderDtlRepository.findBySubsOrderId(nextDueDateModel.getSubsOrderId()));
-
+                    taxPercentage = taxRepository.findByZipcode(addressRepository.findByAddressId(orderHdrModel.getOrderAddressId()).getZipcode()).getTaxPercentage();
+                    orderDtlModels = constructDtlModel(orderHdrModel.getOrderId(),subscriptionOrderDtlRepository.findBySubsOrderId(nextDueDateModel.getSubsOrderId()));
                     for(OrderDtlModel orderDtlModel: orderDtlModels) {
                         orderDtlModel.setOrderItemPrice((long)catalogRepository.findByItemId(orderDtlModel.getOrderItemId()).getItemPrice());
+                        totalAmount += orderDtlModel.getOrderItemPrice()*orderDtlModel.getOrderItemQuantity();
+                        taxAmount += (taxPercentage/100)*orderDtlModel.getOrderItemPrice()*orderDtlModel.getOrderItemQuantity();
                         orderDtlRepository.save(orderDtlModel);
                     }
+                    orderHdrModel.setTaxAmount(taxAmount);
+                    orderHdrModel.setOrderTotal(totalAmount+taxAmount);
+                    orderHdrModel.setOrderItemCount(itemCount);
                     int subs_type=nextDueDateModel.getSubscriptionType();
                     if(subs_type==1)
                     {
@@ -248,7 +274,6 @@ public class SubscriptionUtil {
                         Date delivery_date=date2.getTime();
                         updateNextDueDate(nextDueDateModel,date1);
                         orderHdrModel.setExpectedDeliveryDate(delivery_date);
-                        orderHdrRepository.save(orderHdrModel);
                     }
                     else if(subs_type==2)
                     {
@@ -257,7 +282,6 @@ public class SubscriptionUtil {
                         Date delivery_date=date2.getTime();
                         updateNextDueDate(nextDueDateModel,date1);
                         orderHdrModel.setExpectedDeliveryDate(delivery_date);
-                        orderHdrRepository.save(orderHdrModel);
                     }
                     else if(subs_type==3)
                     {
@@ -268,7 +292,6 @@ public class SubscriptionUtil {
                         Date delivery_date=date2.getTime();
                         updateNextDueDate(nextDueDateModel,date1);
                         orderHdrModel.setExpectedDeliveryDate(delivery_date);
-                        orderHdrRepository.save(orderHdrModel);
                     }
                     else if(subs_type==6)
                     {
@@ -277,7 +300,6 @@ public class SubscriptionUtil {
                         Date delivery_date=date2.getTime();
                         updateNextDueDate(nextDueDateModel,date1);
                         orderHdrModel.setExpectedDeliveryDate(delivery_date);
-                        orderHdrRepository.save(orderHdrModel);
                     }
                     else if(subs_type==12)
                     {
@@ -286,9 +308,9 @@ public class SubscriptionUtil {
                         Date delivery_date=date2.getTime();
                         updateNextDueDate(nextDueDateModel,date1);
                         orderHdrModel.setExpectedDeliveryDate(delivery_date);
-                        orderHdrRepository.save(orderHdrModel);
                     }
-
+                    logger.log(Level.INFO,orderHdrModel.toString());
+                    orderHdrRepository.save(orderHdrModel);
                 }
             }
 
