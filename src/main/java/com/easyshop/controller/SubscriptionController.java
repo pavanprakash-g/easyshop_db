@@ -100,7 +100,7 @@ public class SubscriptionController {
         nextDueDateRepository.save(nextDueDateModel);
         JSONObject response = new JSONObject();
         response.put("status", true);
-        return ResponseEntity.ok(response.toString());
+        return ResponseEntity.ok(SubscriptionUtil.getSubscriptionData(subscriptionOrderModel.getCustId(), subscriptionOrderHdrRepository, subscriptionOrderDtlRepository, catalogRepository, nextDueDateRepository, taxRepository, addressRepository));
     }
 
 

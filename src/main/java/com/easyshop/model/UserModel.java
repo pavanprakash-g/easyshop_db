@@ -29,23 +29,9 @@ public class UserModel {
     private String custLastName;
     @NotNull
     private String custEmailid;
-    @NotNull
-    private String custPhoneNumber;
+
     @NotNull
     private String custPassword;
-
-    private String address1;
-    
-    private String address2;
-
-    @NotNull
-    private String city;
-
-    @NotNull
-    private String state;
-
-    @NotNull
-    private int zipcode;
 
     @NotNull
     private boolean activeStatus;
@@ -53,8 +39,6 @@ public class UserModel {
     private int securityQuesId;
 
     private String securityQuesAns;
-
-    private String country;
 
     private String authToken;
 

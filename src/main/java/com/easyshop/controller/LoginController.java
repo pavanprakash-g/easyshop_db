@@ -81,7 +81,7 @@ public class LoginController{
                 responseObject.put("uuid", authtoken);
                 responseObject.put("info", info);
                 userModel.setAuthToken(authtoken);
-                AddressModel addressModel = new AddressModel();
+                /*AddressModel addressModel = new AddressModel();
                 addressModel.setCustId(userModel.getCustId());
                 addressModel.setAddress1(userModel.getAddress1());
                 addressModel.setAddress2(userModel.getAddress2());
@@ -89,8 +89,8 @@ public class LoginController{
                 addressModel.setCity(userModel.getCity());
                 addressModel.setState(userModel.getState());
                 addressModel.setCountry(userModel.getCountry());
-                addressModel.setZipcode(userModel.getZipcode());
-                addressRepository.save(addressModel);
+                addressModel.setZipcode(userModel.getZipcode());*/
+                addressRepository.save(userModel.getAddresses());
                 userRepository.save(userModel);
                 return ResponseEntity.ok(responseObject.toString());
             }else {

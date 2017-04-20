@@ -16,8 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.logging.Logger;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.PUT;
+import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 /**
  * Created by pavan on 2/6/17.
@@ -67,7 +66,27 @@ public class ProfileController {
         addressRepository.save(addressModel);
         JSONObject response = new JSONObject();
         response.put("status",true);
-        return ResponseEntity.ok(response.toString());
+        return ResponseEntity.ok(addressRepository.findAll());
+    }
+
+    @RequestMapping(value = "/address", method = POST, produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity addAddress(HttpServletRequest request, @RequestBody AddressModel addressModel) throws Exception{
+        if(!EasyShopUtil.isValidCustomer(userRepository, request)){
+            return ResponseEntity.badRequest().body("Invalid Auth Token");
+        }
+        addressModel = addressRepository.save(addressModel);
+        return ResponseEntity.ok(addressModel);
+    }
+
+    @RequestMapping(value = "/address", method = DELETE, produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity deleteAddress(HttpServletRequest request, @RequestParam(name = "addressId") long addressId) throws Exception{
+        if(!EasyShopUtil.isValidCustomer(userRepository, request)){
+            return ResponseEntity.badRequest().body("Invalid Auth Token");
+        }
+        addressRepository.delete(addressRepository.findByAddressId(addressId));
+        JSONObject response = new JSONObject();
+        response.put("status",true);
+        return ResponseEntity.ok(addressRepository.findAll());
     }
 
     @RequestMapping(value = "/address", method = GET, produces = APPLICATION_JSON_VALUE)
@@ -84,6 +103,26 @@ public class ProfileController {
             return ResponseEntity.badRequest().body("Invalid Auth Token");
         }
         cardRepository.save(cardModel);
+        JSONObject response = new JSONObject();
+        response.put("status",true);
+        return ResponseEntity.ok(response.toString());
+    }
+
+    @RequestMapping(value = "/card", method = POST, produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity addCards(HttpServletRequest request, @RequestBody CardModel cardModel) throws Exception{
+        if(!EasyShopUtil.isValidCustomer(userRepository, request)){
+            return ResponseEntity.badRequest().body("Invalid Auth Token");
+        }
+        cardModel = cardRepository.save(cardModel);
+        return ResponseEntity.ok(cardModel);
+    }
+
+    @RequestMapping(value = "/card", method = DELETE, produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity deleteCards(HttpServletRequest request, @RequestParam(name = "cardId") long cardId) throws Exception{
+        if(!EasyShopUtil.isValidCustomer(userRepository, request)){
+            return ResponseEntity.badRequest().body("Invalid Auth Token");
+        }
+        cardRepository.delete(cardRepository.findByCardId(cardId));
         JSONObject response = new JSONObject();
         response.put("status",true);
         return ResponseEntity.ok(response.toString());

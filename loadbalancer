@@ -1,0 +1,7 @@
+nohup java -jar build/libs/easysho_db-0.1.0.jar --server.port=7070 --shell.ssh.port=10071 &
+
+nohup java -jar build/libs/easysho_db-0.1.0.jar --server.port=7071 --shell.ssh.port=10072 &
+
+nohup java -jar build/libs/easysho_db-0.1.0.jar --server.port=7072 --shell.ssh.port=10073 &
+
+nohup java -jar build/libs/easysho_db-0.1.0.jar --server.port=7073 --shell.ssh.port=10074 &

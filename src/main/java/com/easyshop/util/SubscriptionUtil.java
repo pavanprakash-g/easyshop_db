@@ -216,12 +216,10 @@ public class SubscriptionUtil {
     }
 
 
-    public Vector<OrderDtlModel> constructDtlModel(long orderId, Iterable <SubscriptionOrderDtlModel> subscriptionOrderDtlModels)
-    {
+    public Vector<OrderDtlModel> constructDtlModel(long orderId, Iterable <SubscriptionOrderDtlModel> subscriptionOrderDtlModels) throws Exception{
         Vector<OrderDtlModel> orderDtlModels = new Vector<OrderDtlModel>();
         OrderDtlModel orderDtlModel = new OrderDtlModel();
-        for(SubscriptionOrderDtlModel subscriptionOrderDtlModel0: subscriptionOrderDtlModels)
-        {
+        for(SubscriptionOrderDtlModel subscriptionOrderDtlModel0: subscriptionOrderDtlModels){
             orderDtlModel.setOrderId(orderId);
             orderDtlModel.setOrderItemId(subscriptionOrderDtlModel0.getSubsOrderItemId());
             orderDtlModel.setOrderItemQuantity(subscriptionOrderDtlModel0.getSubsOrderItemQuantity());
@@ -229,7 +227,13 @@ public class SubscriptionUtil {
             orderDtlModel.setOrderItemStatus(subscriptionOrderDtlModel0.getSubsOrderItemStatus());
             orderDtlModel.setOrderItemName(subscriptionOrderDtlModel0.getSubsOrderItemName());
             orderDtlModels.add(orderDtlModel);
-
+            CatalogModel catalogModel = catalogRepository.findByItemId(subscriptionOrderDtlModel0.getSubsOrderItemId());
+            if(catalogModel.getItemQuantity() - orderDtlModel.getOrderItemQuantity() >=0) {
+                catalogModel.setItemQuantity(catalogModel.getItemQuantity() - orderDtlModel.getOrderItemQuantity());
+                catalogRepository.save(catalogModel);
+            }else{
+                throw new Exception("Stock Not available");
+            }
         }
         return orderDtlModels;
     }
@@ -246,75 +250,66 @@ public class SubscriptionUtil {
         OrderHdrModel orderHdrModel = new OrderHdrModel();
         Vector <OrderDtlModel> orderDtlModels = null;
         Iterable<NextDueDateModel> nextDueDateModels;
-            nextDueDateModels=nextDueDateRepository.findAll();
-            for(NextDueDateModel nextDueDateModel:nextDueDateModels)
-            {
+        nextDueDateModels=nextDueDateRepository.findAll();
+        try {
+            for (NextDueDateModel nextDueDateModel : nextDueDateModels) {
                 Calendar date1 = Calendar.getInstance();
                 Calendar date2 = Calendar.getInstance();
-                if(nextDueDateModel.getNextDueDate().before(date1))
-                {
+                if (nextDueDateModel.getNextDueDate().before(date1)) {
                     System.out.println("Date Matches");
-                    orderHdrModel=constructHdrModel(subscriptionOrderHdrRepository.findBySubsOrderId(nextDueDateModel.getSubsOrderId()));
+                    orderHdrModel = constructHdrModel(subscriptionOrderHdrRepository.findBySubsOrderId(nextDueDateModel.getSubsOrderId()));
                     taxPercentage = taxRepository.findByZipcode(addressRepository.findByAddressId(orderHdrModel.getOrderAddressId()).getZipcode()).getTaxPercentage();
-                    orderDtlModels = constructDtlModel(orderHdrModel.getOrderId(),subscriptionOrderDtlRepository.findBySubsOrderId(nextDueDateModel.getSubsOrderId()));
-                    for(OrderDtlModel orderDtlModel: orderDtlModels) {
-                        orderDtlModel.setOrderItemPrice((long)catalogRepository.findByItemId(orderDtlModel.getOrderItemId()).getItemPrice());
-                        totalAmount += orderDtlModel.getOrderItemPrice()*orderDtlModel.getOrderItemQuantity();
-                        taxAmount += (taxPercentage/100)*orderDtlModel.getOrderItemPrice()*orderDtlModel.getOrderItemQuantity();
+                    orderDtlModels = constructDtlModel(orderHdrModel.getOrderId(), subscriptionOrderDtlRepository.findBySubsOrderId(nextDueDateModel.getSubsOrderId()));
+                    for (OrderDtlModel orderDtlModel : orderDtlModels) {
+                        orderDtlModel.setOrderItemPrice((long) catalogRepository.findByItemId(orderDtlModel.getOrderItemId()).getItemPrice());
+                        totalAmount += orderDtlModel.getOrderItemPrice() * orderDtlModel.getOrderItemQuantity();
+                        taxAmount += (taxPercentage / 100) * orderDtlModel.getOrderItemPrice() * orderDtlModel.getOrderItemQuantity();
                         orderDtlRepository.save(orderDtlModel);
                     }
                     orderHdrModel.setTaxAmount(taxAmount);
-                    orderHdrModel.setOrderTotal(totalAmount+taxAmount);
+                    orderHdrModel.setOrderTotal(totalAmount + taxAmount);
                     orderHdrModel.setOrderItemCount(itemCount);
-                    int subs_type=nextDueDateModel.getSubscriptionType();
-                    if(subs_type==1)
-                    {
+                    int subs_type = nextDueDateModel.getSubscriptionType();
+                    if (subs_type == 1) {
                         date1.add(Calendar.MONTH, 1);
                         date2.add(Calendar.DAY_OF_MONTH, 5);
-                        Date delivery_date=date2.getTime();
-                        updateNextDueDate(nextDueDateModel,date1);
+                        Date delivery_date = date2.getTime();
+                        updateNextDueDate(nextDueDateModel, date1);
                         orderHdrModel.setExpectedDeliveryDate(delivery_date);
-                    }
-                    else if(subs_type==2)
-                    {
+                    } else if (subs_type == 2) {
                         date1.add(Calendar.MONTH, 2);
                         date2.add(Calendar.DAY_OF_MONTH, 5);
-                        Date delivery_date=date2.getTime();
-                        updateNextDueDate(nextDueDateModel,date1);
+                        Date delivery_date = date2.getTime();
+                        updateNextDueDate(nextDueDateModel, date1);
                         orderHdrModel.setExpectedDeliveryDate(delivery_date);
-                    }
-                    else if(subs_type==3)
-                    {
-                        logger.log(Level.INFO,"current::::"+date1.getTime());
+                    } else if (subs_type == 3) {
+                        logger.log(Level.INFO, "current::::" + date1.getTime());
                         date1.add(Calendar.MONTH, 3);
-                        logger.log(Level.INFO,"added::::"+date1.getTime());
+                        logger.log(Level.INFO, "added::::" + date1.getTime());
                         date2.add(Calendar.DAY_OF_MONTH, 5);
-                        Date delivery_date=date2.getTime();
-                        updateNextDueDate(nextDueDateModel,date1);
+                        Date delivery_date = date2.getTime();
+                        updateNextDueDate(nextDueDateModel, date1);
                         orderHdrModel.setExpectedDeliveryDate(delivery_date);
-                    }
-                    else if(subs_type==6)
-                    {
+                    } else if (subs_type == 6) {
                         date1.add(Calendar.MONTH, 6);
                         date2.add(Calendar.DAY_OF_MONTH, 5);
-                        Date delivery_date=date2.getTime();
-                        updateNextDueDate(nextDueDateModel,date1);
+                        Date delivery_date = date2.getTime();
+                        updateNextDueDate(nextDueDateModel, date1);
                         orderHdrModel.setExpectedDeliveryDate(delivery_date);
-                    }
-                    else if(subs_type==12)
-                    {
+                    } else if (subs_type == 12) {
                         date1.add(Calendar.MONTH, 12);
                         date2.add(Calendar.DAY_OF_MONTH, 5);
-                        Date delivery_date=date2.getTime();
-                        updateNextDueDate(nextDueDateModel,date1);
+                        Date delivery_date = date2.getTime();
+                        updateNextDueDate(nextDueDateModel, date1);
                         orderHdrModel.setExpectedDeliveryDate(delivery_date);
                     }
-                    logger.log(Level.INFO,orderHdrModel.toString());
+                    logger.log(Level.INFO, orderHdrModel.toString());
                     orderHdrRepository.save(orderHdrModel);
                 }
             }
-
-
+        }catch (Exception ex){
+            logger.log(Level.INFO,ex);
+        }
     }
 }
 
