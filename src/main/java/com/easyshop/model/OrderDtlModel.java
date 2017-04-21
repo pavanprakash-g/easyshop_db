@@ -40,5 +40,8 @@ public class OrderDtlModel {
     @Transient
     private String orderItemName;
 
+    @NotNull
+    private long orderShipmentId;
+
     public OrderDtlModel(){}
 }

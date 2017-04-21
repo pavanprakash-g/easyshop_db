@@ -3,6 +3,7 @@ package com.easyshop.controller;
 import com.easyshop.model.OrderDtlModel;
 import com.easyshop.model.OrderHdrModel;
 import com.easyshop.model.OrderModel;
+import com.easyshop.model.ShipmentModel;
 import com.easyshop.repository.*;
 import com.easyshop.util.EasyShopUtil;
 import com.easyshop.util.OrderUtil;
@@ -52,6 +53,9 @@ public class OrderController {
     @Autowired
     private TaxRepository taxRepository;
 
+    @Autowired
+    private ShipmentRepository shipmentRepository;
+
     @RequestMapping(value = "/getOrders", method = GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity getOrders(HttpServletRequest request, @RequestParam(name = "custId", required = false, defaultValue ="0") int id) throws Exception{
         if(!EasyShopUtil.isValidCustomer(userRepository, request)){
@@ -70,6 +74,12 @@ public class OrderController {
         OrderHdrModel orderHdrModel = OrderUtil.constructOrderHdr(orderModel);
         orderHdrRepository.save(orderHdrModel);
         OrderUtil.updateDtlModel(orderModel, catalogRepository);
+        ShipmentModel shipmentModel = new ShipmentModel();
+        shipmentModel.setTrackingNo(EasyShopUtil.getSaltString());
+        shipmentModel = shipmentRepository.save(shipmentModel);
+        for(OrderDtlModel orderDtlModel: orderModel.getItems()){
+            orderDtlModel.setOrderShipmentId(shipmentModel.getShipmentId());
+        }
         orderDtlRepository.save(orderModel.getItems());
         cartRepository.delete(cartRepository.findByCustId(orderModel.getCustId()));
         JSONObject response = new JSONObject();
