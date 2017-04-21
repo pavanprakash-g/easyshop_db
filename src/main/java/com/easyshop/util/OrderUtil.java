@@ -1,13 +1,7 @@
 package com.easyshop.util;
 
-import com.easyshop.model.CatalogModel;
-import com.easyshop.model.OrderDtlModel;
-import com.easyshop.model.OrderHdrModel;
-import com.easyshop.model.OrderModel;
-import com.easyshop.repository.CatalogRepository;
-import com.easyshop.repository.CommonRepository;
-import com.easyshop.repository.OrderDtlRepository;
-import com.easyshop.repository.OrderHdrRepository;
+import com.easyshop.model.*;
+import com.easyshop.repository.*;
 import org.apache.log4j.Logger;
 
 import java.text.DateFormat;
@@ -151,6 +145,30 @@ public class OrderUtil {
         }
         orderHdrModel.setOrderUpdatedDate(new Date());
         orderHdrRepository.save(orderHdrModel);
+    }
+
+    public static void createMessage(MessageRepository messageRepository, OrderHdrModel orderHdrModel, String orderStatus){
+        if ("".equals(orderStatus)){
+            orderStatus = "Order Created and it is expected to be delivered on "+orderHdrModel.getExpectedDeliveryDate();
+        }else{
+            orderStatus = "Order Status changed to "+orderStatus;
+        }
+        MessageModel messageModel = new MessageModel();
+        messageModel.setCustId(orderHdrModel.getCustId());
+        messageModel.setMessageContent(orderStatus);
+        messageModel.setRead(false);
+        messageModel.setMessageTime(new Date());
+        messageRepository.save(messageModel);
+    }
+
+    public static void createOrderUpdateMessage(MessageRepository messageRepository, long orderId, long custId, String itemName, String orderItemStatus){
+        orderItemStatus = "In Order:"+orderId+" Status of "+itemName+" changed to "+orderItemStatus;
+        MessageModel messageModel = new MessageModel();
+        messageModel.setCustId(custId);
+        messageModel.setMessageContent(orderItemStatus);
+        messageModel.setRead(false);
+        messageModel.setMessageTime(new Date());
+        messageRepository.save(messageModel);
     }
 
 }

@@ -66,7 +66,7 @@ public class ProfileController {
         addressRepository.save(addressModel);
         JSONObject response = new JSONObject();
         response.put("status",true);
-        return ResponseEntity.ok(addressRepository.findAll());
+        return ResponseEntity.ok(response.toString());
     }
 
     @RequestMapping(value = "/address", method = POST, produces = APPLICATION_JSON_VALUE)

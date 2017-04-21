@@ -47,6 +47,9 @@ public class SubscriptionUtil {
     @Autowired
     private CommonRepository commonRepository;
 
+    @Autowired
+    private MessageRepository messageRepository;
+
     private final static Logger logger = Logger.getLogger(SubscriptionUtil.class);
 
     public static SubscriptionOrderHdrModel constructSubscriptionOrderHdr(SubscriptionOrderModel subscriptionOrderModel, SubscriptionOrderHdrModel subscriptionOrderHdrModel){
@@ -232,7 +235,9 @@ public class SubscriptionUtil {
                 catalogModel.setItemQuantity(catalogModel.getItemQuantity() - orderDtlModel.getOrderItemQuantity());
                 catalogRepository.save(catalogModel);
             }else{
-                throw new Exception("Stock Not available");
+                logger.log(Level.INFO,"added the schema for ");
+                throw new Exception("Stock is not there for "+catalogRepository.findByItemId(orderDtlModel.getOrderItemId()).getItemName()+". " +
+                        " Order will be created when the stock is available.");
             }
         }
         return orderDtlModels;
@@ -308,6 +313,13 @@ public class SubscriptionUtil {
                 }
             }
         }catch (Exception ex){
+            logger.log(Level.INFO,"test"+ex);
+            MessageModel messageModel = new MessageModel();
+            messageModel.setCustId(3);
+            messageModel.setMessageContent(ex.toString());
+            messageModel.setRead(false);
+            messageModel.setMessageTime(new Date());
+            messageRepository.save(messageModel);
             logger.log(Level.INFO,ex);
         }
     }

@@ -1,8 +1,10 @@
 package com.easyshop.controller;
 
 import com.easyshop.model.CatalogModel;
+import com.easyshop.model.MessageModel;
 import com.easyshop.repository.CatalogRepository;
 import com.easyshop.repository.CommonRepository;
+import com.easyshop.repository.MessageRepository;
 import com.easyshop.repository.UserRepository;
 import com.easyshop.util.EasyShopUtil;
 import org.apache.log4j.Level;
@@ -38,6 +40,9 @@ public class CatalogController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private MessageRepository messageRepository;
 
     @RequestMapping(value = "/getItem", method = GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity getItem(@RequestParam("itemName") String itemName) throws Exception{
@@ -156,6 +161,27 @@ public class CatalogController {
         responseObject.put("status",true);
         catalogRepository.save(catalogModel);
         return ResponseEntity.ok(responseObject.toString());
+    }
+
+    @RequestMapping(value = "/getMessages", method = GET, produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity getMessages(HttpServletRequest request) throws Exception{
+        if(!EasyShopUtil.isValidCustomer(userRepository, request)){
+            return ResponseEntity.badRequest().body("Invalid Auth Token");
+        }
+        long custId = EasyShopUtil.getCustIdByToken(userRepository,request);
+        return ResponseEntity.ok(messageRepository.findByCustId(custId));
+    }
+
+    @RequestMapping(value = "/messageMarkRead", method = PUT, produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity messageMarkRead(HttpServletRequest request, @RequestParam(name = "messageId") long messageId) throws Exception{
+        if(!EasyShopUtil.isValidCustomer(userRepository, request)){
+            return ResponseEntity.badRequest().body("Invalid Auth Token");
+        }
+        long custId = EasyShopUtil.getCustIdByToken(userRepository,request);
+        MessageModel messageModel = messageRepository.findByMessageId(messageId);
+        messageModel.setRead(true);
+        messageRepository.save(messageModel);
+        return ResponseEntity.ok(messageRepository.findByCustId(custId));
     }
 
     private CatalogController() {

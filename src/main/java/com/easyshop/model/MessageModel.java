@@ -15,7 +15,7 @@ import java.util.Date;
 @Getter
 @Setter
 @Entity
-@Table(name = "message")
+@Table(name = "cust_messages")
 @Data
 public class MessageModel {
 

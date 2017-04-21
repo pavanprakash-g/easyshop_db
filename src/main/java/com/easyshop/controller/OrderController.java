@@ -56,6 +56,9 @@ public class OrderController {
     @Autowired
     private ShipmentRepository shipmentRepository;
 
+    @Autowired
+    private MessageRepository messageRepository;
+
     @RequestMapping(value = "/getOrders", method = GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity getOrders(HttpServletRequest request, @RequestParam(name = "custId", required = false, defaultValue ="0") int id) throws Exception{
         if(!EasyShopUtil.isValidCustomer(userRepository, request)){
@@ -82,6 +85,7 @@ public class OrderController {
         }
         orderDtlRepository.save(orderModel.getItems());
         cartRepository.delete(cartRepository.findByCustId(orderModel.getCustId()));
+        OrderUtil.createMessage(messageRepository, orderHdrModel, "");
         JSONObject response = new JSONObject();
         response.put("status", true);
         return ResponseEntity.ok(response.toString());
@@ -108,6 +112,7 @@ public class OrderController {
         }
         OrderDtlModel orderDtlModel = orderDtlRepository.findByOrderIdAndOrderItemId(orderId, orderItemId);
         OrderUtil.updateStatus(orderHdrRepository, orderDtlRepository, orderDtlModel, orderItemStatus);
+        OrderUtil.createOrderUpdateMessage(messageRepository, orderId,orderHdrRepository.findByOrderId(orderId).getCustId(),catalogRepository.findByItemId(orderItemId).getItemName(), orderItemStatus);
         JSONObject resp = new JSONObject();
         resp.put("status", true);
         return ResponseEntity.ok(resp.toString());
