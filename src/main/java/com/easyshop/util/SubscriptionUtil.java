@@ -219,11 +219,12 @@ public class SubscriptionUtil {
     }
 
 
-    public Vector<OrderDtlModel> constructDtlModel(long orderId, Iterable <SubscriptionOrderDtlModel> subscriptionOrderDtlModels) throws Exception{
+    public Vector<OrderDtlModel> constructDtlModel(OrderHdrModel orderHdrModel, Iterable <SubscriptionOrderDtlModel> subscriptionOrderDtlModels, NextDueDateModel nextDueDateModel) throws Exception{
         Vector<OrderDtlModel> orderDtlModels = new Vector<OrderDtlModel>();
         OrderDtlModel orderDtlModel = new OrderDtlModel();
+        Calendar date1 = Calendar.getInstance();
         for(SubscriptionOrderDtlModel subscriptionOrderDtlModel0: subscriptionOrderDtlModels){
-            orderDtlModel.setOrderId(orderId);
+            orderDtlModel.setOrderId(orderHdrModel.getOrderId());
             orderDtlModel.setOrderItemId(subscriptionOrderDtlModel0.getSubsOrderItemId());
             orderDtlModel.setOrderItemQuantity(subscriptionOrderDtlModel0.getSubsOrderItemQuantity());
             orderDtlModel.setOrderItemPrice(subscriptionOrderDtlModel0.getSubsOrderItemPrice());
@@ -236,6 +237,15 @@ public class SubscriptionUtil {
                 catalogRepository.save(catalogModel);
             }else{
                 logger.log(Level.INFO,"added the schema for ");
+                MessageModel messageModel = new MessageModel();
+                messageModel.setCustId(orderHdrModel.getCustId());
+                messageModel.setMessageContent("Stock is not there for "+catalogRepository.findByItemId(orderDtlModel.getOrderItemId()).getItemName()+". " +
+                        " Order will be created when the stock is available.");
+                messageModel.setRead(false);
+                messageModel.setMessageTime(new Date());
+                messageRepository.save(messageModel);
+                date1.add(Calendar.DAY_OF_MONTH, 1);
+                updateNextDueDate(nextDueDateModel, date1);
                 throw new Exception("Stock is not there for "+catalogRepository.findByItemId(orderDtlModel.getOrderItemId()).getItemName()+". " +
                         " Order will be created when the stock is available.");
             }
@@ -264,7 +274,7 @@ public class SubscriptionUtil {
                     System.out.println("Date Matches");
                     orderHdrModel = constructHdrModel(subscriptionOrderHdrRepository.findBySubsOrderId(nextDueDateModel.getSubsOrderId()));
                     taxPercentage = taxRepository.findByZipcode(addressRepository.findByAddressId(orderHdrModel.getOrderAddressId()).getZipcode()).getTaxPercentage();
-                    orderDtlModels = constructDtlModel(orderHdrModel.getOrderId(), subscriptionOrderDtlRepository.findBySubsOrderId(nextDueDateModel.getSubsOrderId()));
+                    orderDtlModels = constructDtlModel(orderHdrModel, subscriptionOrderDtlRepository.findBySubsOrderId(nextDueDateModel.getSubsOrderId()),nextDueDateModel);
                     for (OrderDtlModel orderDtlModel : orderDtlModels) {
                         orderDtlModel.setOrderItemPrice((long) catalogRepository.findByItemId(orderDtlModel.getOrderItemId()).getItemPrice());
                         totalAmount += orderDtlModel.getOrderItemPrice() * orderDtlModel.getOrderItemQuantity();
@@ -314,12 +324,6 @@ public class SubscriptionUtil {
             }
         }catch (Exception ex){
             logger.log(Level.INFO,"test"+ex);
-            MessageModel messageModel = new MessageModel();
-            messageModel.setCustId(3);
-            messageModel.setMessageContent(ex.toString());
-            messageModel.setRead(false);
-            messageModel.setMessageTime(new Date());
-            messageRepository.save(messageModel);
             logger.log(Level.INFO,ex);
         }
     }

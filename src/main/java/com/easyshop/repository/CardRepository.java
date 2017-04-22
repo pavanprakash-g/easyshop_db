@@ -10,4 +10,6 @@ public interface CardRepository extends CrudRepository<CardModel, Long> {
 
     CardModel findByCardId(long cardId);
 
+    Iterable<CardModel> findByCustId(int custId);
+
 }

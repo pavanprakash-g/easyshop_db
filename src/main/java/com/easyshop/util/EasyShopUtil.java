@@ -1,9 +1,7 @@
 package com.easyshop.util;
 
-import com.easyshop.model.UserModel;
-import com.easyshop.repository.CatalogRepository;
-import com.easyshop.repository.CommonRepository;
-import com.easyshop.repository.UserRepository;
+import com.easyshop.model.*;
+import com.easyshop.repository.*;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,6 +74,21 @@ public class EasyShopUtil {
         }
         String saltStr = salt.toString();
         return saltStr;
+
+    }
+
+    public static void deleteAll(long custId,AddressRepository addressRepository, CardRepository cardRepository,OrderHdrRepository orderHdrRepository,OrderDtlRepository orderDtlRepository,SubscriptionOrderHdrRepository subscriptionOrderHdrRepository,SubscriptionOrderDtlRepository subscriptionOrderDtlRepository, CartRepository cartRepository){
+        addressRepository.delete(addressRepository.findByCustId(custId));
+        cardRepository.delete(cardRepository.findByCustId((int)custId));
+        cartRepository.delete(cartRepository.findByCustId(custId));
+        for(OrderHdrModel orderHdrModel : orderHdrRepository.findByCustId((int)custId)) {
+            orderDtlRepository.delete(orderDtlRepository.findByOrderId(orderHdrModel.getOrderId()));
+            orderHdrRepository.delete(orderHdrModel);
+        }
+        for(SubscriptionOrderHdrModel subscriptionOrderHdrModel : subscriptionOrderHdrRepository.findByCustId((int)custId)) {
+            subscriptionOrderDtlRepository.delete(subscriptionOrderDtlRepository.findBySubsOrderId(subscriptionOrderHdrModel.getSubsOrderId()));
+            subscriptionOrderHdrRepository.delete(subscriptionOrderHdrModel);
+        }
 
     }
 }

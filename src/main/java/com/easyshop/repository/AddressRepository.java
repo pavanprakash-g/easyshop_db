@@ -8,4 +8,6 @@ import org.springframework.data.repository.CrudRepository;
  */
 public interface AddressRepository extends CrudRepository<AddressModel, Long> {
     AddressModel findByAddressId(long addressId);
+
+    Iterable<AddressModel> findByCustId(long custId);
 }

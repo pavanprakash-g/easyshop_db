@@ -1,11 +1,7 @@
 package com.easyshop.controller;
 
-import com.easyshop.model.AddressModel;
-import com.easyshop.model.UserModel;
-import com.easyshop.model.CardModel;
-import com.easyshop.repository.AddressRepository;
-import com.easyshop.repository.CardRepository;
-import com.easyshop.repository.UserRepository;
+import com.easyshop.model.*;
+import com.easyshop.repository.*;
 import com.easyshop.util.EasyShopUtil;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +33,21 @@ public class ProfileController {
     @Autowired
     CardRepository cardRepository;
 
+    @Autowired
+    OrderHdrRepository orderHdrRepository;
+
+    @Autowired
+    OrderDtlRepository orderDtlRepository;
+
+    @Autowired
+    SubscriptionOrderDtlRepository subscriptionOrderDtlRepository;
+
+    @Autowired
+    SubscriptionOrderHdrRepository subscriptionOrderHdrRepository;
+
+    @Autowired
+    CartRepository cartRepository;
+
     @RequestMapping(value = "/custDetails", method = GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity getCustomerDetails(HttpServletRequest request, @RequestParam(value= "id", required = false, defaultValue ="0" ) Long id){
         if(!EasyShopUtil.isValidCustomer(userRepository, request)){
@@ -53,6 +64,9 @@ public class ProfileController {
     public ResponseEntity updateCustomerStatus(HttpServletRequest request, @RequestBody UserModel userModel){
         if(!EasyShopUtil.isValidCustomer(userRepository, request)){
             return ResponseEntity.badRequest().body("Invalid Auth Token");
+        }
+        if(!userModel.isActiveStatus()){
+            EasyShopUtil.deleteAll(userModel.getCustId(),addressRepository,cardRepository,orderHdrRepository, orderDtlRepository,subscriptionOrderHdrRepository, subscriptionOrderDtlRepository, cartRepository);
         }
         userRepository.save(userModel);
         return ResponseEntity.ok(userRepository.findAll());

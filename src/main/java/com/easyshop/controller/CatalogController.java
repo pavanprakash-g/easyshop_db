@@ -169,7 +169,7 @@ public class CatalogController {
             return ResponseEntity.badRequest().body("Invalid Auth Token");
         }
         long custId = EasyShopUtil.getCustIdByToken(userRepository,request);
-        return ResponseEntity.ok(messageRepository.findByCustId(custId));
+        return ResponseEntity.ok(messageRepository.findByCustIdOrderByMessageIdDesc(custId));
     }
 
     @RequestMapping(value = "/messageMarkRead", method = PUT, produces = APPLICATION_JSON_VALUE)
@@ -181,7 +181,7 @@ public class CatalogController {
         MessageModel messageModel = messageRepository.findByMessageId(messageId);
         messageModel.setRead(true);
         messageRepository.save(messageModel);
-        return ResponseEntity.ok(messageRepository.findByCustId(custId));
+        return ResponseEntity.ok(messageRepository.findByCustIdOrderByMessageIdDesc(custId));
     }
 
     private CatalogController() {
