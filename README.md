@@ -9,6 +9,6 @@ Install the following:
 2. MYSQL 5.5
 
 Steps to setup:
-1. Run the command " build gradle && java -jar build/libs/easysho_db-0.1.0.jar".
+1. Run the command "gradle build && java -jar build/libs/easysho_db-0.1.0.jar".
 
 The server starts in the machine on "7070" port. We can change the same in application.properties available in the src/main/resources
